@@ -1,0 +1,57 @@
+﻿<Window x:Class="LiteDbExplorer.Windows.ArrayViewer"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LiteDbExplorer.Windows"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        mc:Ignorable="d"
+        Title="Array Editor" Height="400" Width="300"
+        WindowStartupLocation="CenterOwner">
+    <DockPanel>
+        <DockPanel DockPanel.Dock="Bottom" LastChildFill="False">
+            <Button Name="ButtonCancel" Content="Cancel" IsCancel="True"
+                    Click="ButtonCancel_Click"
+                    DockPanel.Dock="Right" Width="60" Padding="5" Margin="5"/>
+            <Button Name="ButtonOK" Content="OK"
+                    Click="ButtonOK_Click"
+                    DockPanel.Dock="Right" Width="60" Padding="5" Margin="5"/>
+            <xctk:DropDownButton Margin="5" DockPanel.Dock="Left" Name="ButtonAddItem">
+                <xctk:DropDownButton.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/Images/addfield.png" Width="16"/>
+                        <TextBlock Text="Add Item" Margin="5,0,0,0"/>
+                    </StackPanel>
+                </xctk:DropDownButton.Content>
+                <xctk:DropDownButton.DropDownContent>
+                    <ItemsControl>
+                        <MenuItem Header="String" Click="NewFieldMenuItem_Click" />
+                        <MenuItem Header="Boolean" Click="NewFieldMenuItem_Click" />
+                        <MenuItem Header="Double" Click="NewFieldMenuItem_Click" />
+                        <MenuItem Header="Int32" Click="NewFieldMenuItem_Click" />
+                        <MenuItem Header="Int64" Click="NewFieldMenuItem_Click" />
+                        <MenuItem Header="DateTime" Click="NewFieldMenuItem_Click" />
+                        <MenuItem Header="Array" Click="NewFieldMenuItem_Click" />
+                        <MenuItem Header="Document" Click="NewFieldMenuItem_Click" />
+                    </ItemsControl>
+                </xctk:DropDownButton.DropDownContent>
+            </xctk:DropDownButton>
+            <Canvas/>
+        </DockPanel>
+
+        <ScrollViewer DockPanel.Dock="Top" Padding="5">
+            <ItemsControl Name="ItemsItems">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <DockPanel Margin="5">
+                            <Button DockPanel.Dock="Right" Tag="{Binding Value}" Click="ButtonRemove_Click" Margin="5,0,0,0" ToolTip="Remove Item">
+                                <Image Source="/Images/deleteitem.png" Width="16"/>
+                            </Button>
+                            <ContentPresenter Content="{Binding Control}" DockPanel.Dock="Left"/>
+                        </DockPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </DockPanel>
+</Window>

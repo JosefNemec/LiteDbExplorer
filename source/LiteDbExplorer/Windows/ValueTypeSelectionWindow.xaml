@@ -1,0 +1,31 @@
+﻿<Window x:Class="LiteDbExplorer.Windows.ValueTypeSelectionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LiteDbExplorer.Windows"
+        mc:Ignorable="d"
+        Title="Select value type" Width="200"
+        SizeToContent="Height" WindowStartupLocation="CenterOwner">
+    <DockPanel>
+        <DockPanel DockPanel.Dock="Bottom" LastChildFill="False">
+            <Button Name="ButtonCancel" Content="Cancel" IsCancel="True"
+                    Click="ButtonCancel_Click"
+                    DockPanel.Dock="Right" Width="60" Padding="5" Margin="5"/>
+            <Button Name="ButtonOK" Content="OK"
+                    Click="ButtonOK_Click"
+                    DockPanel.Dock="Right" Width="60" Padding="5" Margin="5"/>
+        </DockPanel>
+
+        <ComboBox Margin="5" SelectedIndex="0">
+            <ComboBoxItem Content="String" />
+            <ComboBoxItem Content="Boolean" />
+            <ComboBoxItem Content="Double" />
+            <ComboBoxItem Content="Int32" />
+            <ComboBoxItem Content="Int64" />
+            <ComboBoxItem Content="DateTime" />
+            <ComboBoxItem Content="Array" />
+            <ComboBoxItem Content="Document" />
+        </ComboBox>
+    </DockPanel>
+</Window>
