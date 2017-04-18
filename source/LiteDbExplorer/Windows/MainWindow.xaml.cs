@@ -89,7 +89,6 @@ namespace LiteDbExplorer
             set
             {
                 selectedDatabase = value;
-
                 if (selectedDatabase == null)
                 {
                     Title = "LiteDB Explorer " + Versions.CurrentVersion;
@@ -125,6 +124,8 @@ namespace LiteDbExplorer
                     logger.Error(e, "Failed to process update: ");
                 }
             });
+
+            DockSearch.Visibility = Visibility.Collapsed;
         }
 
         #region Open Exit
@@ -162,7 +163,7 @@ namespace LiteDbExplorer
             {
                 return;
             }
-            
+
             OpenDatabase(dialog.FileName);
         }
         #endregion Open Command
@@ -175,8 +176,15 @@ namespace LiteDbExplorer
 
         private void CloseCommand_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            Databases.Remove(SelectedDatabase);
+            if (SelectedCollection.Database == SelectedDatabase)
+            {
+                ListCollectionData.SelectedItem = null;
+                ListCollectionData.Visibility = Visibility.Hidden;
+                SelectedCollection = null;
+            }
+
             SelectedDatabase.Dispose();
+            Databases.Remove(SelectedDatabase);
             SelectedDatabase = null;
         }
         #endregion Close Command
@@ -223,7 +231,7 @@ namespace LiteDbExplorer
 
                 try
                 {
-                    if (InputBoxWindow.ShowDialog("New file id:", "Enter new file id", "", out string id ) == true)
+                    if (InputBoxWindow.ShowDialog("New file id:", "Enter new file id", "", out string id) == true)
                     {
                         ListCollectionData.SelectedItem = collection.AddFile(id, dialog.FileName);
                         ListCollectionData.ScrollIntoView(ListCollectionData.SelectedItem);
@@ -316,7 +324,7 @@ namespace LiteDbExplorer
             {
                 return;
             }
-             
+
             SelectedCollection.RemoveItems(DbSelectedItems.ToList());
         }
         #endregion Remove Command
@@ -479,8 +487,102 @@ namespace LiteDbExplorer
                     MessageBoxImage.Error
                 );
             }
-}
+        }
         #endregion DropCollection Command
+
+        #region Find Command
+        private void FindCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        private void FindCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            DockSearch.Visibility = Visibility.Visible;
+            TextSearch.Focus();
+            TextSearch.SelectAll();
+        }
+        #endregion Find Command
+
+        #region FindNext Command
+        private void FindNextCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = SelectedCollection != null;
+        }
+
+        private void FindNextCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(TextSearch.Text))
+            {
+                return;
+            }
+
+            var skipIndex = -1;
+            if (DbItemsSelectedCount > 0)
+            {
+                skipIndex = SelectedCollection.Items.IndexOf(DbSelectedItems.Last());
+            }
+
+            foreach (var item in SelectedCollection.Items.Skip(skipIndex + 1))
+            {
+                if (ItemMatchesSearch(TextSearch.Text, item, (bool)CheckSearchCase.IsChecked))
+                {
+                    SelectDocumentInView(item);
+                    return;
+                }
+            }
+        }
+        #endregion FindNext Command
+
+        #region FindPrevious Command
+        private void FindPreviousCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = SelectedCollection != null;
+        }
+
+        private void FindPreviousCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(TextSearch.Text))
+            {
+                return;
+            }
+
+            var skipIndex = 0;
+            if (DbItemsSelectedCount > 0)
+            {
+                skipIndex = SelectedCollection.Items.Count - SelectedCollection.Items.IndexOf(DbSelectedItems.Last()) - 1;
+            }
+
+            foreach (var item in SelectedCollection.Items.Reverse().Skip(skipIndex + 1))
+            {
+                if (ItemMatchesSearch(TextSearch.Text, item, (bool)CheckSearchCase.IsChecked))
+                {
+                    SelectDocumentInView(item);
+                    return;
+                }
+            }
+        }
+        #endregion FindPrevious Command
+
+        private bool ItemMatchesSearch(string matchTerm, DocumentReference document, bool matchCase)
+        {
+            var stringData = JsonSerializer.Serialize(document.LiteDocument);
+
+            if (matchCase)
+            {
+                return stringData.IndexOf(matchTerm, 0, StringComparison.InvariantCulture) != -1;
+            }
+            else
+            {
+                return stringData.IndexOf(matchTerm, 0, StringComparison.InvariantCultureIgnoreCase) != -1;
+            }
+        }
+
+        private void SelectDocumentInView(DocumentReference document)
+        {
+            ListCollectionData.SelectedItem = document;
+            ListCollectionData.ScrollIntoView(document);
+        }
 
         private void AddGridColumn(string key)
         {
@@ -644,6 +746,11 @@ namespace LiteDbExplorer
             ButtonOpen.ContextMenu.PlacementTarget = ButtonOpen;
             ButtonOpen.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
             ButtonOpen.ContextMenu.IsOpen = true;
+        }
+
+        private void ButtonCloseSearch_Click(object sender, RoutedEventArgs e)
+        {
+            DockSearch.Visibility = Visibility.Collapsed;
         }
     }
 }

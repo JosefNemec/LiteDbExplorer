@@ -22,7 +22,9 @@
         <CommandBinding Command="local:Commands.Export" Executed="ExportCommand_Executed" CanExecute="ExportCommand_CanExecute" />
         <CommandBinding Command="local:Commands.AddCollection" Executed="AddCollectionCommand_Executed" CanExecute="AddCollectionCommand_CanExecute" />
         <CommandBinding Command="local:Commands.RenameCollection" Executed="RenameCollectionCommand_Executed" CanExecute="RenameCollectionCommand_CanExecute" />
-        <CommandBinding Command="local:Commands.DropCollection" Executed="DropCollectionCommand_Executed" CanExecute="DropCollectionCommand_CanExecute" />
+        <CommandBinding Command="local:Commands.Find" Executed="FindCommand_Executed" CanExecute="FindCommand_CanExecute" />
+        <CommandBinding Command="local:Commands.FindNext" Executed="FindNextCommand_Executed" CanExecute="FindNextCommand_CanExecute" />
+        <CommandBinding Command="local:Commands.FindPrevious" Executed="FindPreviousCommand_Executed" CanExecute="FindPreviousCommand_CanExecute" />
     </Window.CommandBindings>
     
     <DockPanel>
@@ -73,6 +75,10 @@
                         <Image Source="/Images/export.png" />
                     </MenuItem.Icon>
                 </MenuItem>
+                <Separator />
+                <MenuItem Header="Find..." Command="local:Commands.Find" />
+                <MenuItem Header="Find Next" Command="local:Commands.FindNext" />
+                <MenuItem Header="Find Previous" Command="local:Commands.FindPrevious" />
             </MenuItem>
             <MenuItem Header="Help">
                 <MenuItem Header="Report issue..." Click="IssueMenuItem_Click"/>
@@ -151,53 +157,88 @@
 
             <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
 
-            <TreeView Grid.Column="0" Name="TreeDatabasese" DockPanel.Dock="Left"
-                      SelectedItemChanged="TreeDatabasese_SelectedItemChanged"
-                      ItemsSource="{Binding Databases, RelativeSource={RelativeSource AncestorType=Window}}">
-                <TreeView.Resources>
-                    <Style TargetType="TreeViewItem">
-                        <Setter Property="IsExpanded" Value="True" />
-                        <EventSetter Event="PreviewMouseRightButtonDown" Handler="OnPreviewMouseRightButtonDown" />
-                    </Style>
-                    <HierarchicalDataTemplate DataType="{x:Type local:DatabaseReference}" ItemsSource="{Binding Collections}">
-                        <StackPanel Orientation="Horizontal" ToolTip="{Binding Location}">
-                            <StackPanel.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Header="Properties" Command="local:Commands.EditDbProperties" />
-                                    <Separator/>
-                                    <MenuItem Header="Close" Command="Close"/>
-                                </ContextMenu>
-                            </StackPanel.ContextMenu>
-                            <Image Source="/Images/database.png" Width="16" RenderOptions.BitmapScalingMode="Linear"/>
-                            <TextBlock Text="{Binding Name}" Padding="5"/>
-                        </StackPanel>
-                    </HierarchicalDataTemplate>
-                    <DataTemplate DataType="{x:Type local:CollectionReference}">                        
-                        <StackPanel Orientation="Horizontal">
-                            <StackPanel.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Header="New..." Command="local:Commands.AddCollection"/>
-                                    <MenuItem Header="Rename..." Command="local:Commands.RenameCollection"/>
-                                    <MenuItem Header="Drop" Command="local:Commands.DropCollection"/>
-                                </ContextMenu>
-                            </StackPanel.ContextMenu>                            
-                            <ContentPresenter Content="{Binding}">
-                                <ContentPresenter.Resources>
-                                    <DataTemplate DataType="{x:Type local:FileCollectionReference}">
-                                        <Image Source="/Images/files.png"/>
-                                    </DataTemplate>
-                                    <DataTemplate DataType="{x:Type local:CollectionReference}">
-                                        <Image Source="/Images/table.png"/>
-                                    </DataTemplate>
-                                </ContentPresenter.Resources>
-                            </ContentPresenter>
-                            <TextBlock Text="{Binding Name}" Padding="5"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </TreeView.Resources>
-            </TreeView>
+            <DockPanel Grid.Column="0">
+                <Border Name="DockSearch" DockPanel.Dock="Top" BorderThickness="1,1,1,0" BorderBrush="{Binding BorderBrush, ElementName=TreeDatabasese}">
+                    <StackPanel>
+                        <DockPanel Margin="5,5,5,0">
+                            <Button Content=" X " DockPanel.Dock="Right" Name="ButtonCloseSearch" Click="ButtonCloseSearch_Click"
+                                    VerticalContentAlignment="Center" FontWeight="ExtraBold" Height="14" Padding="-2"/>
+                            <TextBlock Text="Search" VerticalAlignment="Center" />
+                        </DockPanel>
+                        <Grid Margin="5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
 
-            <ListView Grid.Column="2" Name="ListCollectionData" DockPanel.Dock="Left" Visibility="Collapsed"
+                            <TextBox Grid.Column="0" Grid.Row="0" Name="TextSearch" Margin="5">
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="Return" Command="local:Commands.FindNext" />
+                                </TextBox.InputBindings>
+                            </TextBox>
+                            <CheckBox Grid.Column="0" Grid.Row="1" Name="CheckSearchCase" 
+                                      Content="Match case" VerticalContentAlignment="Center" Margin="5"/>
+
+                            <Button Grid.Column="1" Grid.Row="0" Content="Find Next" Margin="5"
+                                    Command="local:Commands.FindNext" />
+                            <Button Grid.Column="1" Grid.Row="1" Content="Find Previous" Margin="5"
+                                    Command="local:Commands.FindPrevious" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <TreeView Name="TreeDatabasese" DockPanel.Dock="Top"
+                          SelectedItemChanged="TreeDatabasese_SelectedItemChanged"
+                          ItemsSource="{Binding Databases, RelativeSource={RelativeSource AncestorType=Window}}">
+                    <TreeView.Resources>
+                        <Style TargetType="TreeViewItem">
+                            <Setter Property="IsExpanded" Value="True" />
+                            <EventSetter Event="PreviewMouseRightButtonDown" Handler="OnPreviewMouseRightButtonDown" />
+                        </Style>
+                        <HierarchicalDataTemplate DataType="{x:Type local:DatabaseReference}" ItemsSource="{Binding Collections}">
+                            <StackPanel Orientation="Horizontal" ToolTip="{Binding Location}">
+                                <StackPanel.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Properties" Command="local:Commands.EditDbProperties" />
+                                        <Separator/>
+                                        <MenuItem Header="Close" Command="Close"/>
+                                    </ContextMenu>
+                                </StackPanel.ContextMenu>
+                                <Image Source="/Images/database.png" Width="16" RenderOptions.BitmapScalingMode="Linear"/>
+                                <TextBlock Text="{Binding Name}" Padding="5"/>
+                            </StackPanel>
+                        </HierarchicalDataTemplate>
+                        <DataTemplate DataType="{x:Type local:CollectionReference}">                        
+                            <StackPanel Orientation="Horizontal">
+                                <StackPanel.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="New..." Command="local:Commands.AddCollection"/>
+                                        <MenuItem Header="Rename..." Command="local:Commands.RenameCollection"/>
+                                        <MenuItem Header="Drop" Command="local:Commands.DropCollection"/>
+                                    </ContextMenu>
+                                </StackPanel.ContextMenu>                            
+                                <ContentPresenter Content="{Binding}">
+                                    <ContentPresenter.Resources>
+                                        <DataTemplate DataType="{x:Type local:FileCollectionReference}">
+                                            <Image Source="/Images/files.png"/>
+                                        </DataTemplate>
+                                        <DataTemplate DataType="{x:Type local:CollectionReference}">
+                                            <Image Source="/Images/table.png"/>
+                                        </DataTemplate>
+                                    </ContentPresenter.Resources>
+                                </ContentPresenter>
+                                <TextBlock Text="{Binding Name}" Padding="5"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </TreeView.Resources>
+                </TreeView>
+            </DockPanel>
+
+            <ListView Grid.Column="2" Name="ListCollectionData" Visibility="Collapsed"
                       MouseDoubleClick="ListCollectionData_MouseDoubleClick">
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">

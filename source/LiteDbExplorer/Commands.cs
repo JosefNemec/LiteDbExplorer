@@ -83,5 +83,38 @@ namespace LiteDbExplorer
             "EditDb",
             typeof(Commands)
         );
+
+        public static readonly RoutedUICommand Find = new RoutedUICommand
+        (
+            "Find",
+            "Find",
+            typeof(Commands),
+            new InputGestureCollection()
+            {
+                new KeyGesture(Key.F, ModifierKeys.Control)
+            }
+        );
+
+        public static readonly RoutedUICommand FindNext = new RoutedUICommand
+        (
+            "FindNext",
+            "FindNext",
+            typeof(Commands),
+            new InputGestureCollection()
+            {
+                new KeyGesture(Key.F3)
+            }
+        );
+
+        public static readonly RoutedUICommand FindPrevious = new RoutedUICommand
+        (
+            "FindPrevious",
+            "FindPrevious",
+            typeof(Commands),
+            new InputGestureCollection()
+            {
+                new KeyGesture(Key.F3, ModifierKeys.Shift)
+            }
+        );
     }
 }
