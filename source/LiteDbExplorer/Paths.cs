@@ -19,6 +19,14 @@ namespace LiteDbExplorer
             }
         }
 
+        public static string UninstallerPath
+        {
+            get
+            {
+                return Path.Combine(ProgramFolder, "uninstall.exe");
+            }
+        }
+
         public static string RecentFilesPath
         {
             get

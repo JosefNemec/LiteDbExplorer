@@ -44,6 +44,14 @@ namespace LiteDbExplorer
                 return ConfigurationManager.AppSettings["ReleasesUrl"];
             }
         }
+        
+        public static bool IsPortable
+        {
+            get
+            {
+                return !File.Exists(Paths.UninstallerPath);
+            }
+        }
 
         public static void ConfigureLogger()
         {

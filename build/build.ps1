@@ -2,6 +2,7 @@ param(
     [ValidateSet("Release", "Debug")]
     [string]$Configuration = "Release",
     [string]$OutputPath = (Join-Path $PWD $Configuration),
+    [switch]$Setup = $false,
     [switch]$Portable = $false,
     [switch]$SkipBuild = $false
 )
@@ -52,13 +53,53 @@ else
 }
 
 # -------------------------------------------
+#            Build installer
+# -------------------------------------------
+if ($Setup -and $appCompileSuccess)
+{
+    Write-Host "Building setup..." -ForegroundColor Green
+    
+    $nsisCompiler = "c:\Program Files (x86)\NSIS\makensis.exe"
+    $installerScript = "setup.nsi"
+    $installerTempScript = "setup.temp.nsi"
+
+    $buildNumber = (Get-ChildItem (Join-Path $OutputPath "LiteDbExplorer.exe")).VersionInfo.ProductVersion
+    $buildNumber = $buildNumber -replace "\.0\.0", ""
+
+    $scriptContent = Get-Content $installerScript
+    $files = Get-ChildItem $OutputPath -Recurse
+    foreach ($file in $files)
+    {        
+        $name = $file.FullName.Replace($OutputPath, "").TrimStart("\")
+
+        if (Test-Path $file.FullName -PathType Container)
+        {
+            $filesString += "`$`{CreateDirectory} `"`$INSTDIR\$($name)`"`r`n"
+        }
+        else
+        {
+            $name = $file.FullName.Replace($OutputPath, "").TrimStart("\")
+            $filesString += "`$`{FileOname} `"$($name)`" `"$($file.FullName)`"`r`n"
+        }        
+    }
+
+    $scriptContent = $scriptContent -replace ";{files_here}", $filesString
+    $scriptContent | Out-File $installerTempScript "utf8"
+
+    $arguments = '/DVERSION="{0}" /DFOLDER="{1}" {2}' -f $buildNumber, $OutputPath, $installerTempScript
+    $buildProc = Start-Process $nsisCompiler $arguments -NoNewWindow -WorkingDirectory $PWD -PassThru
+    $buildProc.WaitForExit()
+    Remove-Item $installerTempScript
+}
+
+# -------------------------------------------
 #            Build portable package
 # -------------------------------------------
 if ($Portable -and $appCompileSuccess)
 {
     Write-Host "Building portable package..." -ForegroundColor Green
 
-    $packageName = "LiteDBExplorer.zip"
+    $packageName = "LiteDBExplorerPortable.zip"
 
     if (Test-path $packageName)
     {

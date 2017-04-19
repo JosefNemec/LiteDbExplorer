@@ -261,4 +261,5 @@ paket-files/
 .vscode/
 
 build/nuget.exe
-build/LiteDBExplorer.zip
+build/LiteDBExplorerPortable.zip
+build/LiteDBExplorerInstaller.exe

@@ -107,28 +107,31 @@ namespace LiteDbExplorer
 
             Task.Factory.StartNew(() =>
             {
-                Thread.Sleep(5000);
+                Thread.Sleep(2000);
+                var update = new Update();
 
                 try
                 {
-                    if (Update.IsUpdateAvailable)
+                    if (update.IsUpdateAvailable)
                     {
-                        if (MessageBox.Show("New update found. Do you want to visit download page?", "Update found", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                        update.DownloadUpdate();
+
+                        if (MessageBox.Show("New update found, install now?", "Update found", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                         {
-                            Process.Start(Config.ReleasesUrl);
+                            update.InstallUpdate();
                         }
                     }
                 }
-                catch (Exception e)
+                catch (Exception exc)
                 {
-                    logger.Error(e, "Failed to process update: ");
+                    logger.Error(exc, "Failed to process update.");
                 }
             });
 
             DockSearch.Visibility = Visibility.Collapsed;
         }
 
-        #region Open Exit
+        #region Exit Command
         private void ExitCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;
@@ -143,7 +146,7 @@ namespace LiteDbExplorer
 
             Application.Current.MainWindow.Close();
         }
-        #endregion Open Command
+        #endregion Exit Command
 
         #region Open Command
         private void OpenCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -604,6 +607,8 @@ namespace LiteDbExplorer
             {
                 db.Dispose();
             }
+
+            Application.Current.Shutdown(0);
         }
 
         private void TreeDatabasese_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
