@@ -73,9 +73,42 @@ namespace LiteDbExplorer
             }
         }
 
+        private CollectionReference selectedCollection;
         public CollectionReference SelectedCollection
         {
-            get; set;
+            get
+            {
+                return selectedCollection;
+            }
+
+            set
+            {
+                selectedCollection = value;
+
+                if (value == null)
+                {
+                    ListCollectionData.ItemsSource = null;
+                    ListCollectionData.Visibility = Visibility.Hidden;
+                }
+                else
+                {
+                    List<string> keys = new List<string>();
+
+                    foreach (var item in selectedCollection.Items)
+                    {
+                        keys = item.LiteDocument.Keys.Union(keys).ToList();
+                    }
+
+                    GridCollectionData.Columns.Clear();
+                    foreach (var key in keys.OrderBy(a => a))
+                    {
+                        AddGridColumn(key);
+                    }
+
+                    ListCollectionData.ItemsSource = selectedCollection.Items;
+                    ListCollectionData.Visibility = Visibility.Visible;
+                }
+            }
         }
 
         private DatabaseReference selectedDatabase;
@@ -171,6 +204,34 @@ namespace LiteDbExplorer
         }
         #endregion Open Command
 
+        #region New Command
+        private void NewCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        private void NewCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            var dialog = new SaveFileDialog()
+            {
+                Filter = "All files|*.*",
+                OverwritePrompt = true
+            };
+
+            if (dialog.ShowDialog() != true)
+            {
+                return;
+            }
+
+            using (var stream = new FileStream(dialog.FileName, System.IO.FileMode.Create))
+            {
+                LiteEngine.CreateDatabase(stream);
+            }
+
+            OpenDatabase(dialog.FileName);
+        }
+        #endregion New Command
+
         #region Close Command
         private void CloseCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
@@ -179,10 +240,8 @@ namespace LiteDbExplorer
 
         private void CloseCommand_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            if (SelectedCollection.Database == SelectedDatabase)
+            if (SelectedCollection != null && SelectedCollection.Database == SelectedDatabase)
             {
-                ListCollectionData.SelectedItem = null;
-                ListCollectionData.Visibility = Visibility.Hidden;
                 SelectedCollection = null;
             }
 
@@ -209,6 +268,18 @@ namespace LiteDbExplorer
         }
         #endregion EditDbProperties Command
 
+        #region AddFile Command
+        private void AddFileCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = SelectedDatabase != null;
+        }
+
+        private void AddFileCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            AddFileToDatabase(SelectedDatabase);
+        }
+        #endregion AddFile Command
+
         #region Add Command
         private void AddCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
@@ -219,36 +290,7 @@ namespace LiteDbExplorer
         {
             if (SelectedCollection is FileCollectionReference)
             {
-                var collection = SelectedCollection as FileCollectionReference;
-
-                var dialog = new OpenFileDialog()
-                {
-                    Filter = "All files|*.*",
-                    Multiselect = false
-                };
-
-                if (dialog.ShowDialog() != true)
-                {
-                    return;
-                }
-
-                try
-                {
-                    if (InputBoxWindow.ShowDialog("New file id:", "Enter new file id", "", out string id) == true)
-                    {
-                        ListCollectionData.SelectedItem = collection.AddFile(id, dialog.FileName);
-                        ListCollectionData.ScrollIntoView(ListCollectionData.SelectedItem);
-                    }
-                }
-                catch (Exception exc)
-                {
-                    MessageBox.Show(
-                        "Failed to upload file:" + Environment.NewLine + exc.Message,
-                        "Database error",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error
-                    );
-                }
+                AddFileToDatabase(SelectedCollection.Database);
             }
             else
             {
@@ -259,6 +301,7 @@ namespace LiteDbExplorer
 
                 ListCollectionData.SelectedItem = SelectedCollection.AddItem(newDoc);
                 ListCollectionData.ScrollIntoView(ListCollectionData.SelectedItem);
+                UpdateGridColumns(newDoc);                
             }
         }
         #endregion Add Command
@@ -292,15 +335,7 @@ namespace LiteDbExplorer
                     item.LiteDocument = dbItem;
                     item.Collection.UpdateItem(item);
                     trans.Commit();
-
-                    // Update view in case that new fields were added
-                    var headers = GridCollectionData.Columns.Select(a => (a.Header as TextBlock).Text);
-                    var missing = dbItem.Keys.Except(headers);
-
-                    foreach (var key in missing)
-                    {
-                        AddGridColumn(key);
-                    }
+                    UpdateGridColumns(dbItem);
                 }
                 else
                 {
@@ -479,6 +514,7 @@ namespace LiteDbExplorer
                 ) == MessageBoxResult.Yes)
                 {
                     SelectedDatabase.DropCollection(SelectedCollection.Name);
+                    SelectedCollection = null;
                 }
             }
             catch (Exception exc)
@@ -567,6 +603,56 @@ namespace LiteDbExplorer
         }
         #endregion FindPrevious Command
 
+        #region Copy Command
+        private void CopyCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = DbItemsSelectedCount > 0 && SelectedCollection != null && SelectedCollection.Name != "_files";
+        }
+
+        private void CopyCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            var data = new BsonArray(DbSelectedItems.Select(a => a.LiteDocument));
+            Clipboard.SetData(DataFormats.Text, JsonSerializer.Serialize(data, true, false));
+        }
+        #endregion Copy Command
+
+        #region Paste Command
+        private void PasteCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = SelectedCollection != null && SelectedCollection.Name != "_files" && Clipboard.ContainsText();            
+        }
+
+        private void PasteCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            try
+            {
+                var textData = Clipboard.GetText();
+                var newValue = JsonSerializer.Deserialize(textData);
+
+                if (newValue.IsArray)
+                {
+                    foreach (var value in newValue.AsArray)
+                    {
+                        var doc = value.AsDocument;
+                        SelectedCollection.AddItem(doc);
+                        UpdateGridColumns(doc);
+                    }
+                }
+                else
+                {
+                    var doc = newValue.AsDocument;
+                    SelectedCollection.AddItem(doc);
+                    UpdateGridColumns(doc);
+                }
+            }
+            catch (Exception exc)
+            {
+                logger.Warn(exc, "Cannot process clipboard data.");
+                MessageBox.Show("Failed to paste document from clipboard: " + exc.Message, "Import Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        #endregion Paste Command
+
         private bool ItemMatchesSearch(string matchTerm, DocumentReference document, bool matchCase)
         {
             var stringData = JsonSerializer.Serialize(document.LiteDocument);
@@ -585,6 +671,17 @@ namespace LiteDbExplorer
         {
             ListCollectionData.SelectedItem = document;
             ListCollectionData.ScrollIntoView(document);
+        }
+
+        private void UpdateGridColumns(BsonDocument dbItem)
+        {
+            var headers = GridCollectionData.Columns.Select(a => (a.Header as TextBlock).Text);
+            var missing = dbItem.Keys.Except(headers);
+
+            foreach (var key in missing)
+            {
+                AddGridColumn(key);
+            }
         }
 
         private void AddGridColumn(string key)
@@ -615,29 +712,13 @@ namespace LiteDbExplorer
         {
             if (e.NewValue == null)
             {
-                ListCollectionData.SelectedItem = null;
-                ListCollectionData.Visibility = Visibility.Hidden;
+                SelectedCollection = null;
                 return;
             }
 
             if (e.NewValue is CollectionReference)
             {
                 var collection = e.NewValue as CollectionReference;
-                List<string> keys = new List<string>();
-
-                foreach (var item in collection.Items)
-                {
-                    keys = item.LiteDocument.Keys.Union(keys).ToList();
-                }
-
-                GridCollectionData.Columns.Clear();
-                foreach (var key in keys.OrderBy(a => a))
-                {
-                    AddGridColumn(key);
-                }
-
-                ListCollectionData.ItemsSource = collection.Items;
-                ListCollectionData.Visibility = Visibility.Visible;
                 SelectedCollection = collection;
                 SelectedDatabase = collection.Database;
             }
@@ -756,6 +837,40 @@ namespace LiteDbExplorer
         private void ButtonCloseSearch_Click(object sender, RoutedEventArgs e)
         {
             DockSearch.Visibility = Visibility.Collapsed;
+        }
+
+        private void AddFileToDatabase(DatabaseReference database)
+        {
+            var dialog = new OpenFileDialog()
+            {
+                Filter = "All files|*.*",
+                Multiselect = false
+            };
+
+            if (dialog.ShowDialog() != true)
+            {
+                return;
+            }
+
+            try
+            {
+                if (InputBoxWindow.ShowDialog("New file id:", "Enter new file id", Path.GetFileName(dialog.FileName), out string id) == true)
+                {
+                    var file = database.AddFile(id, dialog.FileName);
+                    SelectedCollection = database.Collections.First(a => a.Name == "_files");
+                    ListCollectionData.SelectedItem = file;
+                    ListCollectionData.ScrollIntoView(ListCollectionData.SelectedItem);
+                }
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show(
+                    "Failed to upload file:" + Environment.NewLine + exc.Message,
+                    "Database error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error
+                );
+            }
         }
     }
 }

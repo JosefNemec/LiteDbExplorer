@@ -107,6 +107,15 @@ namespace LiteDbExplorer
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
+
+        public DocumentReference AddFile(string id, string path)
+        {
+            LiteDatabase.FileStorage.Upload(id, path);
+            UpdateCollections();
+            var collection = Collections.First(a => a is FileCollectionReference);
+            return collection.Items.First(a => a.LiteDocument["_id"] == id);
+        }
+
         public void AddCollection(string name)
         {
             if (LiteDatabase.GetCollectionNames().Contains(name))

@@ -51,21 +51,21 @@ namespace LiteDbExplorer
 
         public static readonly RoutedUICommand DropCollection = new RoutedUICommand
         (
-            "Drop",
+            "Drop Collection",
             "DropCollection",
             typeof(Commands)
         );
 
         public static readonly RoutedUICommand AddCollection = new RoutedUICommand
         (
-            "Add...",
+            "Add Collection...",
             "AddCollection",
             typeof(Commands)
         );
 
         public static readonly RoutedUICommand RenameCollection = new RoutedUICommand
         (
-            "Rename...",
+            "Rename Collection...",
             "RenameCollection",
             typeof(Commands)
         );
@@ -84,9 +84,16 @@ namespace LiteDbExplorer
             typeof(Commands)
         );
 
+        public static readonly RoutedUICommand AddFile = new RoutedUICommand
+        (
+            "Add File...",
+            "AddFile",
+            typeof(Commands)
+        );
+
         public static readonly RoutedUICommand Find = new RoutedUICommand
         (
-            "Find",
+            "Find...",
             "Find",
             typeof(Commands),
             new InputGestureCollection()
@@ -97,7 +104,7 @@ namespace LiteDbExplorer
 
         public static readonly RoutedUICommand FindNext = new RoutedUICommand
         (
-            "FindNext",
+            "Find Next",
             "FindNext",
             typeof(Commands),
             new InputGestureCollection()
@@ -108,7 +115,7 @@ namespace LiteDbExplorer
 
         public static readonly RoutedUICommand FindPrevious = new RoutedUICommand
         (
-            "FindPrevious",
+            "Find Previous",
             "FindPrevious",
             typeof(Commands),
             new InputGestureCollection()
