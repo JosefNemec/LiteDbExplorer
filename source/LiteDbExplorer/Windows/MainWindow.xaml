@@ -6,9 +6,10 @@
         xmlns:local="clr-namespace:LiteDbExplorer"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
-        Title="LiteDB Explorer" Width="1600" Height="1000" 
+        Title="LiteDB Explorer" Width="1024" Height="740" 
         WindowStartupLocation="CenterScreen"
-        Closed="Window_Closed"
+        Closed="Window_Closed" Loaded="WindowMain_Loaded"
+        LocationChanged="WindowMain_LocationChanged" SizeChanged="WindowMain_SizeChanged"
         Name="WindowMain">
     
     <Window.CommandBindings>

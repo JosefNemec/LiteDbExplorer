@@ -31,6 +31,7 @@ namespace LiteDbExplorer
     /// </summary>
     public partial class MainWindow : Window
     {
+        private WindowPositionHandler positionManager;
         private static NLog.Logger logger = LogManager.GetCurrentClassLogger();
 
         public Paths PathDefinitions
@@ -136,7 +137,7 @@ namespace LiteDbExplorer
         public MainWindow()
         {
             InitializeComponent();
-            Config.ConfigureLogger();
+            positionManager = new WindowPositionHandler(this, "Main");
 
             Task.Factory.StartNew(() =>
             {
@@ -878,6 +879,27 @@ namespace LiteDbExplorer
                     MessageBoxButton.OK,
                     MessageBoxImage.Error
                 );
+            }
+        }
+
+        private void WindowMain_Loaded(object sender, RoutedEventArgs e)
+        {
+            positionManager.RestoreSizeAndLocation(App.Settings);
+        }
+
+        private void WindowMain_LocationChanged(object sender, EventArgs e)
+        {
+            if (IsLoaded)
+            {
+                positionManager.SavePosition(App.Settings);
+            }
+        }
+
+        private void WindowMain_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (IsLoaded)
+            {
+                positionManager.SaveSize(App.Settings);
             }
         }
     }

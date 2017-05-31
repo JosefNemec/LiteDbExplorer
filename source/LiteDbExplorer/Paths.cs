@@ -35,6 +35,14 @@ namespace LiteDbExplorer
             }
         }
 
+        public static string SettingsFilePath
+        {
+            get
+            {
+                return Path.Combine(ProgramFolder, "settings.json");
+            }
+        }
+
         public static string TempPath
         {
             get

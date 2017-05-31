@@ -107,8 +107,10 @@
     <Compile Include="DocumentReference.cs" />
     <Compile Include="FileCollectionReference.cs" />
     <Compile Include="Paths.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="Update.cs" />
     <Compile Include="Versions.cs" />
+    <Compile Include="WindowPositionHandler.cs" />
     <Compile Include="Windows\ArrayViewer.xaml.cs">
       <DependentUpon>ArrayViewer.xaml</DependentUpon>
     </Compile>

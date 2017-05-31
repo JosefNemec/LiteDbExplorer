@@ -18,11 +18,23 @@ namespace LiteDbExplorer
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
+        public static Settings Settings
+        {
+            get; set;
+        }
+
         private void Application_Startup(object sender, StartupEventArgs e)
         {
 #if !DEBUG
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 #endif
+            Settings = Settings.LoadSettings();
+        }
+
+        private void Application_Exit(object sender, ExitEventArgs e)
+        {
+            Settings.SaveSettings();
+            Config.ConfigureLogger();
         }
 
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
