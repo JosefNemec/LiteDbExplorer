@@ -1,7 +1,7 @@
 {
     "stable" : {
-        "version" : "0.2.0.0",
-        "url" : "https://github.com/JosefNemec/LiteDbExplorer/releases/download/0.2/LiteDbExplorerInstaller.exe"
+        "version" : "0.3.0.0",
+        "url" : "https://github.com/JosefNemec/LiteDbExplorer/releases/download/0.3/LiteDbExplorerInstaller.exe"
     },
     "beta" : {
         "version" : "0.0.0.0",
