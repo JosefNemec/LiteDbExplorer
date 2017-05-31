@@ -200,7 +200,15 @@ namespace LiteDbExplorer
                 return;
             }
 
-            OpenDatabase(dialog.FileName);
+            try
+            {
+                OpenDatabase(dialog.FileName);
+            }
+            catch (Exception exc)
+            {
+                logger.Error(exc, "Failed to open database: ");
+                MessageBox.Show("Failed to open database: " + exc.Message, "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
         #endregion Open Command
 
