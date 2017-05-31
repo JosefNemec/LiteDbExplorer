@@ -29,12 +29,12 @@ namespace LiteDbExplorer
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 #endif
             Settings = Settings.LoadSettings();
+            Config.ConfigureLogger();
         }
 
         private void Application_Exit(object sender, ExitEventArgs e)
         {
             Settings.SaveSettings();
-            Config.ConfigureLogger();
         }
 
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
