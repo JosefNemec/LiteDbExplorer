@@ -6,25 +6,33 @@
         xmlns:local="clr-namespace:LiteDbExplorer.Windows"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:controls="clr-namespace:LiteDbExplorer.Controls"
+        xmlns:converters="clr-namespace:LiteDbExplorer.Converters"
         mc:Ignorable="d"
         Title="Document Editor" Width="600" Height="600" 
         WindowStartupLocation="CenterOwner"
         Activated="Window_Activated" Closed="Window_Closed">
 
+    <Window.Resources>
+        <converters:InvertableBooleanToVisibilityConverter x:Key="InvertableBooleanToVisibilityConverter" />
+    </Window.Resources>
+    
     <Window.CommandBindings>
         <CommandBinding Command="local:DocumentViewer.PreviousItem" Executed="PreviousItemCommand_Executed" CanExecute="PreviousItemCommand_CanExecute" />
         <CommandBinding Command="local:DocumentViewer.NextItem" Executed="NextItemCommand_Executed" CanExecute="NextItemCommand_CanExecute" />
     </Window.CommandBindings>
     
     <DockPanel>
-        <DockPanel DockPanel.Dock="Bottom" LastChildFill="False">                
+        <DockPanel DockPanel.Dock="Bottom" LastChildFill="False">
+            <Button Name="ButtonClose" Content="Close" IsCancel="True"
+                    Click="ButtonCancel_Click" Visibility="Collapsed"
+                    DockPanel.Dock="Right" Width="60" Padding="5" Margin="5"/>
             <Button Name="ButtonCancel" Content="Cancel" IsCancel="True"
                     Click="ButtonCancel_Click"
                     DockPanel.Dock="Right" Width="60" Padding="5" Margin="5"/>
             <Button Name="ButtonOK" Content="OK"
                     Click="ButtonOK_Click"
                     DockPanel.Dock="Right" Width="60" Padding="5" Margin="5"/>
-            <xctk:DropDownButton Margin="5" DockPanel.Dock="Left">
+            <xctk:DropDownButton Margin="5" DockPanel.Dock="Left" x:Name="DropNewField">
                 <xctk:DropDownButton.Content>
                     <StackPanel Orientation="Horizontal">
                         <Image Source="/Images/addfield.png" Width="16"/>
@@ -93,7 +101,8 @@
                             <GridViewColumn Width="40">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button DockPanel.Dock="Right" Tag="{Binding Name}" Click="RemoveButton_Click" ToolTip="Remove Item">
+                                        <Button DockPanel.Dock="Right" Tag="{Binding Name}" Click="RemoveButton_Click" ToolTip="Remove Item"
+                                                Visibility="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InvertableBooleanToVisibilityConverter}, ConverterParameter=Inverted}">
                                             <Image Source="/Images/deleteitem.png" Width="16" Height="16"/>
                                         </Button>
                                     </DataTemplate>

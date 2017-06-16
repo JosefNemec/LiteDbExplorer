@@ -1,4 +1,5 @@
 ﻿using LiteDB;
+using LiteDbExplorer.Controls;
 using LiteDbExplorer.Converters;
 using LiteDbExplorer.Windows;
 using Microsoft.Win32;
@@ -767,7 +768,43 @@ namespace LiteDbExplorer
             {
                 EditCommand_Executed(this, null);
             }
-        }     
+        }
+
+        private void ListCollectionData_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (DbSelectedItems.Count() > 1 || DbSelectedItems.Count() == 0)
+            {
+                ItemsDocPreview.ItemsSource = null;
+                BorderDocPreview.Visibility = Visibility.Collapsed;
+                BorderFilePreview.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+
+            BorderDocPreview.Visibility = Visibility.Visible;
+            var document = DbSelectedItems.First();
+            var controls = new List<DocumentFieldData>();
+
+            for (int i = 0; i < document.LiteDocument.Keys.Count; i++)
+            {
+                var key = document.LiteDocument.Keys.ElementAt(i);
+                var valueEdit = BsonValueEditor.GetBsonValueEditor(string.Format("[{0}]", key), document.LiteDocument[key], document.LiteDocument, true);
+                controls.Add(new DocumentFieldData(key, valueEdit));
+            }
+            
+            ItemsDocPreview.ItemsSource = controls;
+
+            if (document.Collection is FileCollectionReference)
+            {
+                var fileInfo = (document.Collection as FileCollectionReference).GetFileObject(document);
+                FilePreview.LoadFile(fileInfo);
+                BorderFilePreview.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                BorderFilePreview.Visibility = Visibility.Collapsed;
+            }
+        }
 
         private void RecentMenuItem_Click(object sender, RoutedEventArgs e)
         {

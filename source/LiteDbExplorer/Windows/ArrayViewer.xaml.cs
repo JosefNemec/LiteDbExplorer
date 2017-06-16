@@ -42,10 +42,19 @@ namespace LiteDbExplorer.Windows
 
         public BsonArray EditedItems;
 
-        public ArrayViewer(BsonArray array)
+        private bool isReadOnly = false;
+        public bool IsReadOnly
+        {
+            get
+            {
+                return isReadOnly;
+            }
+        }
+
+        public ArrayViewer(BsonArray array, bool readOnly)
         {
             InitializeComponent();
-
+            isReadOnly = readOnly;
             Items = new ObservableCollection<ArrayUIItem>();
 
             foreach (BsonValue item in array)
@@ -54,6 +63,14 @@ namespace LiteDbExplorer.Windows
             }
 
             ItemsItems.ItemsSource = Items;
+
+            if (readOnly)
+            {
+                ButtonClose.Visibility = Visibility.Visible;
+                ButtonOK.Visibility = Visibility.Collapsed;
+                ButtonCancel.Visibility = Visibility.Collapsed;
+                ButtonAddItem.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void ButtonRemove_Click(object sender, RoutedEventArgs e)
@@ -100,7 +117,7 @@ namespace LiteDbExplorer.Windows
                 Value = value
             };
 
-            var valueEdit = BsonValueEditor.GetBsonValueEditor("Value", value, arrayItem);
+            var valueEdit = BsonValueEditor.GetBsonValueEditor("Value", value, arrayItem, IsReadOnly);
             arrayItem.Control = valueEdit;
             return arrayItem;
         }

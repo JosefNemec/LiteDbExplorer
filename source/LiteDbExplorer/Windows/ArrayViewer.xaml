@@ -5,11 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LiteDbExplorer.Windows"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:converters="clr-namespace:LiteDbExplorer.Converters"
         mc:Ignorable="d"
         Title="Array Editor" Height="400" Width="300"
         WindowStartupLocation="CenterOwner">
+
+    <Window.Resources>
+        <converters:InvertableBooleanToVisibilityConverter x:Key="InvertableBooleanToVisibilityConverter" />
+    </Window.Resources>
+
     <DockPanel>
         <DockPanel DockPanel.Dock="Bottom" LastChildFill="False">
+            <Button Name="ButtonClose" Content="Close" IsCancel="True"
+                    Click="ButtonCancel_Click" Visibility="Collapsed"
+                    DockPanel.Dock="Right" Width="60" Padding="5" Margin="5"/>
             <Button Name="ButtonCancel" Content="Cancel" IsCancel="True"
                     Click="ButtonCancel_Click"
                     DockPanel.Dock="Right" Width="60" Padding="5" Margin="5"/>
@@ -39,12 +48,13 @@
             <Canvas/>
         </DockPanel>
 
-        <ScrollViewer DockPanel.Dock="Top" Padding="5">
+        <ScrollViewer DockPanel.Dock="Top" Padding="5" VerticalScrollBarVisibility="Auto">
             <ItemsControl Name="ItemsItems">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <DockPanel Margin="5">
-                            <Button DockPanel.Dock="Right" Tag="{Binding Value}" Click="ButtonRemove_Click" Margin="5,0,0,0" ToolTip="Remove Item">
+                            <Button DockPanel.Dock="Right" Tag="{Binding Value}" Click="ButtonRemove_Click" Margin="5,0,0,0" ToolTip="Remove Item"
+                                    Visibility="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InvertableBooleanToVisibilityConverter}, ConverterParameter=Inverted}">
                                 <Image Source="/Images/deleteitem.png" Width="16"/>
                             </Button>
                             <ContentPresenter Content="{Binding Control}" DockPanel.Dock="Left"/>

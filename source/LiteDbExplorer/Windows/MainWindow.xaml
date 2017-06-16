@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:LiteDbExplorer"
         xmlns:converters="clr-namespace:LiteDbExplorer.Converters"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:controls="clr-namespace:LiteDbExplorer.Controls"
         mc:Ignorable="d"
         Title="LiteDB Explorer" Width="1024" Height="740" 
         WindowStartupLocation="CenterScreen"
@@ -194,7 +195,7 @@
 
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="200" />
+                <ColumnDefinition Width="250" />
                 <ColumnDefinition Width="4" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
@@ -205,8 +206,8 @@
                 <Border Name="DockSearch" DockPanel.Dock="Top" BorderThickness="1,1,1,0" BorderBrush="{Binding BorderBrush, ElementName=TreeDatabasese}">
                     <StackPanel>
                         <DockPanel Margin="5,5,5,0">
-                            <Button Content=" X " DockPanel.Dock="Right" Name="ButtonCloseSearch" Click="ButtonCloseSearch_Click"
-                                    VerticalContentAlignment="Center" FontWeight="ExtraBold" Height="14" Padding="-2"/>
+                            <Button FontFamily="Marlett" Content="r" Padding="2" DockPanel.Dock="Right" Name="ButtonCloseSearch" Click="ButtonCloseSearch_Click"
+                                    VerticalContentAlignment="Center" FontWeight="ExtraBold"/>
                             <TextBlock Text="Search" VerticalAlignment="Center" />
                         </DockPanel>
                         <Grid Margin="5">
@@ -235,7 +236,7 @@
                     </StackPanel>
                 </Border>
 
-                <TreeView Name="TreeDatabasese" DockPanel.Dock="Top"
+                <TreeView Name="TreeDatabasese" DockPanel.Dock="Top" Padding="0,5,0,5"
                           SelectedItemChanged="TreeDatabasese_SelectedItemChanged"
                           ItemsSource="{Binding Databases, RelativeSource={RelativeSource AncestorType=Window}}">
                     <TreeView.Resources>
@@ -296,10 +297,47 @@
                         </DataTemplate>
                     </TreeView.Resources>
                 </TreeView>
+
+                <Border BorderBrush="{Binding BorderBrush, ElementName=TreeDatabasese}" BorderThickness="1,0,1,1" DockPanel.Dock="Top" Padding="0,5,0,5"
+                        Name="BorderDocPreview" Visibility="Collapsed">
+                    <DockPanel DockPanel.Dock="Top">
+                        <TextBlock Text="Document Preview" Padding="5,0,5,0" DockPanel.Dock="Top"/>   
+                        <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" DockPanel.Dock="Top">
+                            <ItemsControl Name="ItemsDocPreview" Margin="5,0,5,0">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Grid.IsSharedSizeScope="True"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition SharedSizeGroup="ColumnOne" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Name}" TextAlignment="Right" Margin="3"/>
+                                            <ContentPresenter Content="{Binding EditControl}" Margin="3" Grid.Column="1"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </DockPanel>
+                </Border>
+
+                <Border BorderBrush="{Binding BorderBrush, ElementName=TreeDatabasese}" BorderThickness="1,0,1,1" DockPanel.Dock="Top" Padding="0,5,0,5"
+                        Name="BorderFilePreview" Visibility="Collapsed">
+                    <DockPanel DockPanel.Dock="Top">
+                        <TextBlock Text="File Preview" Padding="5,0,5,0" DockPanel.Dock="Top"/>                       
+                        <controls:FileView x:Name="FilePreview" DockPanel.Dock="Top"/>
+                    </DockPanel>
+                </Border>
             </DockPanel>
 
             <ListView Grid.Column="2" Name="ListCollectionData" Visibility="Collapsed"
-                      MouseDoubleClick="ListCollectionData_MouseDoubleClick">
+                      MouseDoubleClick="ListCollectionData_MouseDoubleClick"
+                      SelectionChanged="ListCollectionData_SelectionChanged">
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
                         <Setter Property="Height" Value="25"/>

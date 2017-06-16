@@ -18,6 +18,26 @@ using System.Collections.ObjectModel;
 
 namespace LiteDbExplorer.Windows
 {
+
+    public class DocumentFieldData
+    {
+        public string Name
+        {
+            get; set;
+        }
+
+        public FrameworkElement EditControl
+        {
+            get; set;
+        }
+
+        public DocumentFieldData(string name, FrameworkElement editControl)
+        {
+            Name = name;
+            EditControl = editControl;
+        }
+    }
+
     /// <summary>
     /// Interaction logic for DocumentViewer.xaml
     /// </summary>
@@ -45,47 +65,47 @@ namespace LiteDbExplorer.Windows
             }
         );
 
-        public class CustomControl
-        {
-            public string Name
-            {
-                get; set;
-            }
-
-            public FrameworkElement EditControl
-            {
-                get; set;
-            }
-
-            public CustomControl(string name, FrameworkElement editControl)
-            {
-                Name = name;
-                EditControl = editControl;
-            }
-        }
-        
-        private ObservableCollection<CustomControl> customControls;
+        private ObservableCollection<DocumentFieldData> customControls;
 
         private BsonDocument currentDocument;
         private DocumentReference documentReference;
         private LiteTransaction dbTrans;
 
-        public DocumentViewer(BsonDocument document)
+        private bool isReadOnly = false;
+        public bool IsReadOnly
+        {
+            get
+            {
+                return isReadOnly;
+            }
+        }
+
+        public DocumentViewer(BsonDocument document, bool readOnly)
         {
             InitializeComponent();
+            isReadOnly = readOnly;
+
             currentDocument = document;
-            customControls = new ObservableCollection<CustomControl>();
+            customControls = new ObservableCollection<DocumentFieldData>();
 
             for (int i = 0; i < document.Keys.Count; i++)
             {
                 var key = document.Keys.ElementAt(i);
-                customControls.Add(NewField(key));
+                customControls.Add(NewField(key, readOnly));
             }
 
             ListItems.ItemsSource = customControls;
 
             ButtonNext.Visibility = Visibility.Collapsed;
             ButtonPrev.Visibility = Visibility.Collapsed;
+
+            if (readOnly)
+            {
+                ButtonClose.Visibility = Visibility.Visible;
+                ButtonOK.Visibility = Visibility.Collapsed;
+                ButtonCancel.Visibility = Visibility.Collapsed;
+                DropNewField.Visibility = Visibility.Collapsed;
+            }
         }
 
         public DocumentViewer(DocumentReference document)
@@ -112,21 +132,21 @@ namespace LiteDbExplorer.Windows
             currentDocument = document.Collection.LiteCollection.FindById(document.LiteDocument["_id"]);
             documentReference = document;
             dbTrans = documentReference.Collection.Database.LiteDatabase.BeginTrans();
-            customControls = new ObservableCollection<CustomControl>();
+            customControls = new ObservableCollection<DocumentFieldData>();
 
             for (int i = 0; i < document.LiteDocument.Keys.Count; i++)
             {
                 var key = document.LiteDocument.Keys.ElementAt(i);
-                customControls.Add(NewField(key));
+                customControls.Add(NewField(key, IsReadOnly));
             }
 
             ListItems.ItemsSource = customControls;
         }
 
-        private CustomControl NewField(string key)
+        private DocumentFieldData NewField(string key, bool readOnly)
         {
-            var valueEdit = BsonValueEditor.GetBsonValueEditor(string.Format("[{0}]", key), currentDocument[key], currentDocument);
-            return new CustomControl(key, valueEdit);
+            var valueEdit = BsonValueEditor.GetBsonValueEditor(string.Format("[{0}]", key), currentDocument[key], currentDocument, readOnly);
+            return new DocumentFieldData(key, valueEdit);
         }
 
         private void RemoveButton_Click(object sender, RoutedEventArgs e)
@@ -228,7 +248,7 @@ namespace LiteDbExplorer.Windows
             }
 
             currentDocument.Add(fieldName, newValue);
-            var newField = NewField(fieldName);
+            var newField = NewField(fieldName, false);
             customControls.Add(newField);
             newField.EditControl.Focus();
             ItemsField_SizeChanged(ListItems, null);

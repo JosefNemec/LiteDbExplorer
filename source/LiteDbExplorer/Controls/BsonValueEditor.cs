@@ -16,7 +16,7 @@ namespace LiteDbExplorer.Controls
 {
     public class BsonValueEditor
     {
-        public static FrameworkElement GetBsonValueEditor(string bindingPath, BsonValue bindingValue, object bindingSource)
+        public static FrameworkElement GetBsonValueEditor(string bindingPath, BsonValue bindingValue, object bindingSource, bool readOnly)
         {
             var binding = new Binding()
             {
@@ -37,7 +37,7 @@ namespace LiteDbExplorer.Controls
                 button.Click += (s, a) =>
                 {
                     var arrayValue = bindingValue as BsonArray;
-                    var window = new Windows.ArrayViewer(arrayValue)
+                    var window = new Windows.ArrayViewer(arrayValue, readOnly)
                     {
                         Owner = Application.Current.MainWindow
                     };
@@ -53,7 +53,11 @@ namespace LiteDbExplorer.Controls
             }
             else if (bindingValue.IsBoolean)
             {
-                var check = new CheckBox();
+                var check = new CheckBox()
+                {
+                    IsEnabled = !readOnly
+                };
+
                 check.SetBinding(ToggleButton.IsCheckedProperty, binding);
                 return check;
             }
@@ -61,7 +65,8 @@ namespace LiteDbExplorer.Controls
             {
                 var datePicker = new DateTimePicker()
                 {
-                    TextAlignment = TextAlignment.Left
+                    TextAlignment = TextAlignment.Left,
+                    IsReadOnly = readOnly
                 };
 
                 datePicker.SetBinding(DateTimePicker.ValueProperty, binding);
@@ -76,7 +81,7 @@ namespace LiteDbExplorer.Controls
 
                 button.Click += (s, a) =>
                 {
-                    var window = new Windows.DocumentViewer(bindingValue as BsonDocument)
+                    var window = new Windows.DocumentViewer(bindingValue as BsonDocument, readOnly)
                     {
                         Owner = Application.Current.MainWindow
                     };
@@ -90,7 +95,8 @@ namespace LiteDbExplorer.Controls
             {
                 var numberEditor = new DoubleUpDown()
                 {
-                    TextAlignment = TextAlignment.Left
+                    TextAlignment = TextAlignment.Left,
+                    IsReadOnly = readOnly
                 };
 
                 numberEditor.SetBinding(DoubleUpDown.ValueProperty, binding);
@@ -100,7 +106,8 @@ namespace LiteDbExplorer.Controls
             {
                 var numberEditor = new IntegerUpDown()
                 {
-                    TextAlignment = TextAlignment.Left
+                    TextAlignment = TextAlignment.Left,
+                    IsReadOnly = readOnly
                 };
 
                 numberEditor.SetBinding(IntegerUpDown.ValueProperty, binding);
@@ -110,7 +117,8 @@ namespace LiteDbExplorer.Controls
             {
                 var numberEditor = new LongUpDown()
                 {
-                    TextAlignment = TextAlignment.Left
+                    TextAlignment = TextAlignment.Left,
+                    IsReadOnly = readOnly
                 };
 
                 numberEditor.SetBinding(LongUpDown.ValueProperty, binding);
@@ -118,7 +126,12 @@ namespace LiteDbExplorer.Controls
             }
             else if (bindingValue.IsString)
             {
-                var stringEditor = new TextBox();
+                var stringEditor = new TextBox()
+                {
+                    IsReadOnly = readOnly,
+                    AcceptsReturn = true
+                };
+
                 stringEditor.SetBinding(TextBox.TextProperty, binding);
                 return stringEditor;
             }
@@ -135,7 +148,8 @@ namespace LiteDbExplorer.Controls
             {
                 var text = new TextBlock()
                 {
-                    Text = bindingValue.AsString
+                    Text = bindingValue.AsString,
+                    IsEnabled = false
                 };
 
                 return text;
