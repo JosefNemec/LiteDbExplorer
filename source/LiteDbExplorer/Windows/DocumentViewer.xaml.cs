@@ -23,6 +23,28 @@ namespace LiteDbExplorer.Windows
     /// </summary>
     public partial class DocumentViewer : Window
     {
+        public static readonly RoutedUICommand PreviousItem = new RoutedUICommand
+        (
+            "Previous Item",
+            "PreviousItem",
+            typeof(Commands),
+            new InputGestureCollection()
+            {
+                new KeyGesture(Key.PageUp)
+            }
+        );
+
+        public static readonly RoutedUICommand NextItem = new RoutedUICommand
+        (
+            "Next Item",
+            "NextItem",
+            typeof(Commands),
+            new InputGestureCollection()
+            {
+                    new KeyGesture(Key.PageDown)
+            }
+        );
+
         public class CustomControl
         {
             public string Name
@@ -44,13 +66,14 @@ namespace LiteDbExplorer.Windows
         
         private ObservableCollection<CustomControl> customControls;
 
-        private BsonDocument document;
+        private BsonDocument currentDocument;
+        private DocumentReference documentReference;
+        private LiteTransaction dbTrans;
 
-        public DocumentViewer(BsonDocument document, LiteFileInfo fileInfo)
+        public DocumentViewer(BsonDocument document)
         {
             InitializeComponent();
-
-            this.document = document;
+            currentDocument = document;
             customControls = new ObservableCollection<CustomControl>();
 
             for (int i = 0; i < document.Keys.Count; i++)
@@ -61,16 +84,48 @@ namespace LiteDbExplorer.Windows
 
             ListItems.ItemsSource = customControls;
 
-            if (fileInfo != null)
+            ButtonNext.Visibility = Visibility.Collapsed;
+            ButtonPrev.Visibility = Visibility.Collapsed;
+        }
+
+        public DocumentViewer(DocumentReference document)
+        {
+            InitializeComponent();
+            LoadDocument(document);
+        }
+
+        private void LoadDocument(DocumentReference document)
+        {
+            if (dbTrans != null)
             {
+                dbTrans.Rollback();
+                dbTrans.Dispose();
+            }
+
+            if (document.Collection is FileCollectionReference)
+            {
+                var fileInfo = (document.Collection as FileCollectionReference).GetFileObject(document);
                 GroupFile.Visibility = Visibility.Visible;
                 FileView.LoadFile(fileInfo);
             }
+
+            currentDocument = document.Collection.LiteCollection.FindById(document.LiteDocument["_id"]);
+            documentReference = document;
+            dbTrans = documentReference.Collection.Database.LiteDatabase.BeginTrans();
+            customControls = new ObservableCollection<CustomControl>();
+
+            for (int i = 0; i < document.LiteDocument.Keys.Count; i++)
+            {
+                var key = document.LiteDocument.Keys.ElementAt(i);
+                customControls.Add(NewField(key));
+            }
+
+            ListItems.ItemsSource = customControls;
         }
 
         private CustomControl NewField(string key)
         {
-            var valueEdit = BsonValueEditor.GetBsonValueEditor(string.Format("[{0}]", key), document[key], document);
+            var valueEdit = BsonValueEditor.GetBsonValueEditor(string.Format("[{0}]", key), currentDocument[key], currentDocument);
             return new CustomControl(key, valueEdit);
         }
 
@@ -79,13 +134,18 @@ namespace LiteDbExplorer.Windows
             var key = (sender as Button).Tag as string;
             var item = customControls.First(a => a.Name == key);
             customControls.Remove(item);
-            document.Remove(key);
+            currentDocument.Remove(key);
         }
 
         private void ButtonCancel_Click(object sender, RoutedEventArgs e)
         {
+            if (dbTrans != null)
+            {
+                dbTrans.Rollback();
+            }
+
             DialogResult = false;
-            Close();
+            Close();            
         }
 
         private void ButtonOK_Click(object sender, RoutedEventArgs e)
@@ -109,6 +169,13 @@ namespace LiteDbExplorer.Windows
                 }
             }
 
+            if (documentReference != null)
+            {
+                documentReference.LiteDocument = currentDocument;
+                documentReference.Collection.UpdateItem(documentReference);
+                dbTrans.Commit();
+            }
+
             DialogResult = true;
             Close();
         }
@@ -120,7 +187,7 @@ namespace LiteDbExplorer.Windows
                 return;
             }
 
-            if (document.Keys.Contains(fieldName))
+            if (currentDocument.Keys.Contains(fieldName))
             {
                 MessageBox.Show(string.Format("Field \"{0}\" already exists!", fieldName), "", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -160,7 +227,7 @@ namespace LiteDbExplorer.Windows
 
             }
 
-            document.Add(fieldName, newValue);
+            currentDocument.Add(fieldName, newValue);
             var newField = NewField(fieldName);
             customControls.Add(newField);
             newField.EditControl.Focus();
@@ -171,13 +238,73 @@ namespace LiteDbExplorer.Windows
         private void ItemsField_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             ListView listView = sender as ListView;
-            GridView grid = listView.View as GridView;            
-            grid.Columns[1].Width = listView.ActualWidth - SystemParameters.VerticalScrollBarWidth - 10 - grid.Columns[0].ActualWidth - grid.Columns[2].ActualWidth;
+            GridView grid = listView.View as GridView;
+            var newWidth = listView.ActualWidth - SystemParameters.VerticalScrollBarWidth - 10 - grid.Columns[0].ActualWidth - grid.Columns[2].ActualWidth;
+            if (newWidth > 0)
+            {
+                grid.Columns[1].Width = newWidth;
+            }
         }
 
         private void Window_Activated(object sender, EventArgs e)
         {
             ItemsField_SizeChanged(ListItems, null);
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            if (dbTrans != null)
+            {
+                dbTrans.Dispose();
+            }
+        }
+
+        private void NextItemCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            if (documentReference == null)
+            {
+                e.CanExecute = false;
+            }
+            else
+            {
+                var index = documentReference.Collection.Items.IndexOf(documentReference);
+                e.CanExecute = index + 1 < documentReference.Collection.Items.Count;
+            }
+        }
+
+        private void NextItemCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            var index = documentReference.Collection.Items.IndexOf(documentReference);
+
+            if (index + 1 < documentReference.Collection.Items.Count)
+            {
+                var newDocument = documentReference.Collection.Items[index + 1];                
+                LoadDocument(newDocument);
+            }
+        }
+
+        private void PreviousItemCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            if (documentReference == null)
+            {
+                e.CanExecute = false;
+            }
+            else
+            {
+                var index = documentReference.Collection.Items.IndexOf(documentReference);
+                e.CanExecute = index > 0;
+            }
+        }
+
+        private void PreviousItemCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            var index = documentReference.Collection.Items.IndexOf(documentReference);
+
+            if (index > 0)
+            {
+                var newDocument = documentReference.Collection.Items[index - 1];
+                LoadDocument(newDocument);
+            }
         }
     }
 }

@@ -9,8 +9,13 @@
         mc:Ignorable="d"
         Title="Document Editor" Width="600" Height="600" 
         WindowStartupLocation="CenterOwner"
-        Activated="Window_Activated">
+        Activated="Window_Activated" Closed="Window_Closed">
 
+    <Window.CommandBindings>
+        <CommandBinding Command="local:DocumentViewer.PreviousItem" Executed="PreviousItemCommand_Executed" CanExecute="PreviousItemCommand_CanExecute" />
+        <CommandBinding Command="local:DocumentViewer.NextItem" Executed="NextItemCommand_Executed" CanExecute="NextItemCommand_CanExecute" />
+    </Window.CommandBindings>
+    
     <DockPanel>
         <DockPanel DockPanel.Dock="Bottom" LastChildFill="False">                
             <Button Name="ButtonCancel" Content="Cancel" IsCancel="True"
@@ -41,55 +46,69 @@
             </xctk:DropDownButton>
             <Canvas/>
         </DockPanel>
-
-
-        <DockPanel>            
-            <ListView Name="ListItems" SizeChanged="ItemsField_SizeChanged" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                      DockPanel.Dock="Top" BorderThickness="0">
-                <ListView.ItemContainerStyle>
-                    <Style TargetType="ListViewItem">
-                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                    </Style>
-                </ListView.ItemContainerStyle>
-                <ListView.View>
-                    <GridView>
-                        <GridView.ColumnHeaderContainerStyle>
-                            <Style TargetType="GridViewColumnHeader">
-                                <Setter Property="Visibility" Value="Collapsed" />
-                            </Style>
-                        </GridView.ColumnHeaderContainerStyle>
-                        <GridViewColumn>
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Name}" TextAlignment="Right"/>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                        <GridViewColumn>
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <ContentPresenter Content="{Binding EditControl}" Margin="0,3,0,3"/>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                        <GridViewColumn Width="40">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <Button DockPanel.Dock="Right" Tag="{Binding Name}" Click="RemoveButton_Click" ToolTip="Remove Item">
-                                        <Image Source="/Images/deleteitem.png" Width="16" Height="16"/>
-                                    </Button>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                    </GridView>
-                </ListView.View>
-            </ListView>
-            <DockPanel DockPanel.Dock="Top" Name="GroupFile" Visibility="Collapsed" Margin="0,10,0,0">
-                <Border BorderBrush="LightGray" BorderThickness="0,1,0,0" DockPanel.Dock="Top">
-                    <TextBlock Text="File Preview" FontSize="14"  Padding="5"/>
-                </Border>
-                <controls:FileView x:Name="FileView" DockPanel.Dock="Top"/>
+        
+        <Grid DockPanel.Dock="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            
+            <Button Name="ButtonPrev" FontFamily="Marlett" Content="3" Grid.Column="0" Grid.Row="0" Margin="5" Height="100"
+                    Command="local:DocumentViewer.PreviousItem"/>
+            <Button Name="ButtonNext" FontFamily="Marlett" Content="4" Grid.Column="2" Grid.Row="0" Margin="5" Height="100"
+                    Command="local:DocumentViewer.NextItem"/>
+            <DockPanel Grid.Column="1" Grid.Row="0">
+                <ListView Name="ListItems" SizeChanged="ItemsField_SizeChanged" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                        BorderThickness="0" DockPanel.Dock="Top">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.View>
+                        <GridView>
+                            <GridView.ColumnHeaderContainerStyle>
+                                <Style TargetType="GridViewColumnHeader">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </Style>
+                            </GridView.ColumnHeaderContainerStyle>
+                            <GridViewColumn>
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}" TextAlignment="Right"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn>
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ContentPresenter Content="{Binding EditControl}" Margin="0,3,0,3"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="40">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button DockPanel.Dock="Right" Tag="{Binding Name}" Click="RemoveButton_Click" ToolTip="Remove Item">
+                                            <Image Source="/Images/deleteitem.png" Width="16" Height="16"/>
+                                        </Button>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+                <DockPanel DockPanel.Dock="Top" Name="GroupFile" Visibility="Collapsed" Margin="0,10,0,0">
+                    <Border BorderBrush="LightGray" BorderThickness="0,1,0,0" DockPanel.Dock="Top">
+                        <TextBlock Text="File Preview" FontSize="14"  Padding="5"/>
+                    </Border>
+                    <controls:FileView x:Name="FileView" DockPanel.Dock="Top"/>
+                </DockPanel>
             </DockPanel>
-        </DockPanel>
+        </Grid>
     </DockPanel>
 </Window>

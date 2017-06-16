@@ -76,7 +76,7 @@ namespace LiteDbExplorer.Controls
 
                 button.Click += (s, a) =>
                 {
-                    var window = new Windows.DocumentViewer(bindingValue as BsonDocument, null)
+                    var window = new Windows.DocumentViewer(bindingValue as BsonDocument)
                     {
                         Owner = Application.Current.MainWindow
                     };

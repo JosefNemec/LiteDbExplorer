@@ -312,32 +312,15 @@ namespace LiteDbExplorer
         private void EditCommand_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             var item = DbSelectedItems.First();
-            var dbItem = item.Collection.LiteCollection.FindById(item.LiteDocument["_id"]);
-            LiteFileInfo fileInfo = null;
 
-            if (item.Collection.Name == "_files")
-            {
-                fileInfo = (item.Collection as FileCollectionReference).GetFileObject(item);
-            }
-
-            var window = new Windows.DocumentViewer(dbItem, fileInfo)
+            var window = new Windows.DocumentViewer(item)
             {
                 Owner = this
             };
 
-            using (var trans = item.Collection.Database.LiteDatabase.BeginTrans())
+            if (window.ShowDialog() == true)
             {
-                if (window.ShowDialog() == true)
-                {
-                    item.LiteDocument = dbItem;
-                    item.Collection.UpdateItem(item);
-                    trans.Commit();
-                    UpdateGridColumns(dbItem);
-                }
-                else
-                {
-                    trans.Rollback();
-                }
+                UpdateGridColumns(item.LiteDocument);
             }
         }
         #endregion Edit Command
@@ -546,6 +529,7 @@ namespace LiteDbExplorer
 
         private void RefreshDatabaseCommand_Executed(object sender, ExecutedRoutedEventArgs e)
         {
+            SelectedCollection = null;
             SelectedDatabase.Refresh();
         }
         #endregion Refresh Database Command
