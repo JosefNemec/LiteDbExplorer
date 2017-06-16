@@ -103,6 +103,7 @@
       <DependentUpon>FileView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\BsonValueToNetValueConverter.cs" />
+    <Compile Include="Converters\DoubleToGridLengthConverter .cs" />
     <Compile Include="Converters\EnumConverter.cs" />
     <Compile Include="Converters\InvertableBooleanToVisibilityConverter.cs" />
     <Compile Include="DatabaseReference.cs" />

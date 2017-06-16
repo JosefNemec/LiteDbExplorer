@@ -73,6 +73,21 @@ namespace LiteDbExplorer
             }
         }
 
+        private double mainSplitterSize = 250;
+        public double MainSplitterSize
+        {
+            get
+            {
+                return mainSplitterSize;
+            }
+
+            set
+            {
+                mainSplitterSize = value;
+                OnPropertyChanged("MainSplitterSize");
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public void OnPropertyChanged(string name)

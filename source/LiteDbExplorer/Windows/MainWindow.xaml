@@ -16,6 +16,7 @@
 
     <Window.Resources>
         <converters:EnumConverter x:Key="EnumConverter" />
+        <converters:DoubleToGridLengthConverter x:Key="DoubleToGridLengthConverter" />
     </Window.Resources>
     
     <Window.CommandBindings>
@@ -195,7 +196,7 @@
 
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="250" />
+                <ColumnDefinition Width="{Binding Path=Settings.MainSplitterSize, Mode=TwoWay, Source={x:Static Application.Current}, Converter={StaticResource DoubleToGridLengthConverter}}" />
                 <ColumnDefinition Width="4" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
