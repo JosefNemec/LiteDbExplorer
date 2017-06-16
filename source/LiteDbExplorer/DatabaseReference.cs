@@ -100,6 +100,8 @@ namespace LiteDbExplorer
                         return new CollectionReference(a, this);
                     }
                 }));
+
+            OnPropertyChanged("Collections");
         }
 
         public void OnPropertyChanged(string name)
@@ -165,6 +167,11 @@ namespace LiteDbExplorer
                     throw;
                 }
             }
+        }
+
+        public void Refresh()
+        {
+            UpdateCollections();
         }
     }
 }

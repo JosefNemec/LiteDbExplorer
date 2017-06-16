@@ -451,6 +451,18 @@ namespace LiteDbExplorer
         }
         #endregion Export Command
 
+        #region Refresh Collection Command
+        private void RefreshCollectionCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = SelectedCollection != null;
+        }
+
+        private void RefreshCollectionCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            SelectedCollection.Refresh();
+        }
+        #endregion Refresh Collection Command
+
         #region AddCollection Command
         private void AddCollectionCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
@@ -537,6 +549,18 @@ namespace LiteDbExplorer
             }
         }
         #endregion DropCollection Command
+
+        #region Refresh Database Command
+        private void RefreshDatabaseCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = SelectedDatabase != null;
+        }
+
+        private void RefreshDatabaseCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            SelectedDatabase.Refresh();
+        }
+        #endregion Refresh Database Command
 
         #region Find Command
         private void FindCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)

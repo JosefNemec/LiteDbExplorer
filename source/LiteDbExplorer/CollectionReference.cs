@@ -46,11 +46,7 @@ namespace LiteDbExplorer
         {
             get
             {
-                if (items == null)
-                {
-                    items = new ObservableCollection<DocumentReference>(LiteCollection.FindAll().Select(a => new DocumentReference(a, this)));
-                }
-
+                Refresh();
                 return items;
             }
 
@@ -107,6 +103,25 @@ namespace LiteDbExplorer
             var newDoc = new DocumentReference(document, this);
             Items.Add(newDoc);
             return newDoc;
+        }
+
+        public virtual void Refresh()
+        {
+            if (items == null)
+            {
+                items = new ObservableCollection<DocumentReference>();
+            }
+            else
+            {
+                items.Clear();
+            }
+
+            foreach (var item in LiteCollection.FindAll().Select(a => new DocumentReference(a, this)))
+            {
+                items.Add(item);
+            }
+
+            OnPropertyChanged("Items");
         }
     }
 }

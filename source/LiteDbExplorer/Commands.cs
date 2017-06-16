@@ -123,5 +123,19 @@ namespace LiteDbExplorer
                 new KeyGesture(Key.F3, ModifierKeys.Shift)
             }
         );
+        
+        public static readonly RoutedUICommand RefreshCollection = new RoutedUICommand
+        (
+            "Refresh Collection",
+            "RefreshCollection",
+            typeof(Commands)
+        );
+
+        public static readonly RoutedUICommand RefreshDatabase = new RoutedUICommand
+        (
+            "Refresh Database",
+            "RefreshDatabase",
+            typeof(Commands)
+        );
     }
 }

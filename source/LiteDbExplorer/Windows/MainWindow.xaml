@@ -25,9 +25,11 @@
         <CommandBinding Command="local:Commands.Edit" Executed="EditCommand_Executed" CanExecute="EditCommand_CanExecute" />
         <CommandBinding Command="local:Commands.Remove" Executed="RemoveCommand_Executed" CanExecute="RemoveCommand_CanExecute" />
         <CommandBinding Command="local:Commands.Export" Executed="ExportCommand_Executed" CanExecute="ExportCommand_CanExecute" />
+        <CommandBinding Command="local:Commands.RefreshCollection" Executed="RefreshCollectionCommand_Executed" CanExecute="RefreshCollectionCommand_CanExecute" />
         <CommandBinding Command="local:Commands.AddCollection" Executed="AddCollectionCommand_Executed" CanExecute="AddCollectionCommand_CanExecute" />
         <CommandBinding Command="local:Commands.RenameCollection" Executed="RenameCollectionCommand_Executed" CanExecute="RenameCollectionCommand_CanExecute" />
         <CommandBinding Command="local:Commands.DropCollection" Executed="DropCollectionCommand_Executed" CanExecute="DropCollectionCommand_CanExecute" />
+        <CommandBinding Command="local:Commands.RefreshDatabase" Executed="RefreshDatabaseCommand_Executed" CanExecute="RefreshDatabaseCommand_CanExecute" />
         <CommandBinding Command="local:Commands.Find" Executed="FindCommand_Executed" CanExecute="FindCommand_CanExecute" />
         <CommandBinding Command="local:Commands.FindNext" Executed="FindNextCommand_Executed" CanExecute="FindNextCommand_CanExecute" />
         <CommandBinding Command="local:Commands.FindPrevious" Executed="FindPreviousCommand_Executed" CanExecute="FindPreviousCommand_CanExecute" />
@@ -167,6 +169,13 @@
                         <TextBlock Text="Export" VerticalAlignment="Center"  Margin="2,0,5,0" FontSize="16"/>
                     </StackPanel>
                 </Button>
+                <Separator />
+                <Button Command="local:Commands.RefreshCollection">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/Images/refresh.png" />
+                        <TextBlock Text="Refresh" VerticalAlignment="Center"  Margin="2,0,5,0" FontSize="16"/>
+                    </StackPanel>
+                </Button>
             </ToolBar>
         </ToolBarTray>
 
@@ -236,6 +245,11 @@
                                             </MenuItem.Icon>
                                         </MenuItem>
                                         <Separator/>
+                                        <MenuItem Command="local:Commands.RefreshDatabase">
+                                            <MenuItem.Icon>
+                                                <Image Source="/Images/refresh.png" />
+                                            </MenuItem.Icon>
+                                        </MenuItem>
                                         <MenuItem Command="local:Commands.EditDbProperties" />
                                         <Separator/>
                                         <MenuItem Command="Close"/>
