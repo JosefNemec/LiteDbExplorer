@@ -103,6 +103,7 @@
       <DependentUpon>FileView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\BsonValueToNetValueConverter.cs" />
+    <Compile Include="Converters\EnumConverter.cs" />
     <Compile Include="DatabaseReference.cs" />
     <Compile Include="DocumentReference.cs" />
     <Compile Include="FileCollectionReference.cs" />

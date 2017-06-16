@@ -93,19 +93,7 @@ namespace LiteDbExplorer
                 }
                 else
                 {
-                    List<string> keys = new List<string>();
-
-                    foreach (var item in selectedCollection.Items)
-                    {
-                        keys = item.LiteDocument.Keys.Union(keys).ToList();
-                    }
-
-                    GridCollectionData.Columns.Clear();
-                    foreach (var key in keys.OrderBy(a => a))
-                    {
-                        AddGridColumn(key);
-                    }
-
+                    UpdateGridColumns();
                     ListCollectionData.ItemsSource = selectedCollection.Items;
                     ListCollectionData.Visibility = Visibility.Visible;
                 }
@@ -717,6 +705,26 @@ namespace LiteDbExplorer
             }
         }
 
+        private void UpdateGridColumns()
+        {
+            List<string> keys = new List<string>();
+            foreach (var item in SelectedCollection.Items)
+            {
+                keys = item.LiteDocument.Keys.Union(keys).ToList();
+            }
+
+            if (App.Settings.FieldSortOrder == FieldSortOrder.Alphabetical)
+            {
+                keys = keys.OrderBy(a => a).ToList();
+            }
+
+            GridCollectionData.Columns.Clear();
+            foreach (var key in keys)
+            {
+                AddGridColumn(key);
+            }
+        }
+
         private void AddGridColumn(string key)
         {
             GridCollectionData.Columns.Add(new GridViewColumn()
@@ -909,6 +917,7 @@ namespace LiteDbExplorer
         private void WindowMain_Loaded(object sender, RoutedEventArgs e)
         {
             positionManager.RestoreSizeAndLocation(App.Settings);
+            App.Settings.PropertyChanged += Settings_PropertyChanged;
         }
 
         private void WindowMain_LocationChanged(object sender, EventArgs e)
@@ -924,6 +933,14 @@ namespace LiteDbExplorer
             if (IsLoaded)
             {
                 positionManager.SaveSize(App.Settings);
+            }
+        }
+
+        private void Settings_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "FieldSortOrder")
+            {
+                UpdateGridColumns();
             }
         }
     }

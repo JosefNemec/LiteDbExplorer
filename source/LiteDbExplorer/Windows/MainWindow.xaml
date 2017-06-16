@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LiteDbExplorer"
+        xmlns:converters="clr-namespace:LiteDbExplorer.Converters"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         Title="LiteDB Explorer" Width="1024" Height="740" 
@@ -11,6 +12,10 @@
         Closed="Window_Closed" Loaded="WindowMain_Loaded"
         LocationChanged="WindowMain_LocationChanged" SizeChanged="WindowMain_SizeChanged"
         Name="WindowMain">
+
+    <Window.Resources>
+        <converters:EnumConverter x:Key="EnumConverter" />
+    </Window.Resources>
     
     <Window.CommandBindings>
         <CommandBinding Command="Open" Executed="OpenCommand_Executed" CanExecute="OpenCommand_CanExecute" />
@@ -103,6 +108,14 @@
                 <MenuItem Command="local:Commands.Find" />
                 <MenuItem Command="local:Commands.FindNext" />
                 <MenuItem Command="local:Commands.FindPrevious" />
+            </MenuItem>
+            <MenuItem Header="View">
+                <MenuItem Header="Field sort order">
+                    <MenuItem Header="Alphabetical" IsCheckable="True"
+                              IsChecked="{Binding Path=Settings.FieldSortOrder, Converter={StaticResource EnumConverter}, ConverterParameter={x:Static local:FieldSortOrder.Alphabetical}, Source={x:Static Application.Current}}"/>
+                    <MenuItem Header="Original" IsCheckable="True" 
+                              IsChecked="{Binding Path=Settings.FieldSortOrder, Converter={StaticResource EnumConverter}, ConverterParameter={x:Static local:FieldSortOrder.Original}, Source={x:Static Application.Current}}"/>
+                </MenuItem>
             </MenuItem>
             <MenuItem Header="Help">
                 <MenuItem Header="Report issue..." Click="IssueMenuItem_Click"/>

@@ -9,8 +9,14 @@ using System.Threading.Tasks;
 
 namespace LiteDbExplorer
 {
-    public class Settings : INotifyPropertyChanged
+    public enum FieldSortOrder
     {
+        Alphabetical,
+        Original
+    }
+
+    public class Settings : INotifyPropertyChanged
+    {        
         public class WindowPosition
         {
             public class Point
@@ -49,6 +55,21 @@ namespace LiteDbExplorer
             {
                 windowPositions = value;
                 OnPropertyChanged("WindowPositions");
+            }
+        }
+
+        private FieldSortOrder fieldSortOrder = FieldSortOrder.Original;
+        public FieldSortOrder FieldSortOrder
+        {
+            get
+            {
+                return fieldSortOrder;
+            }
+
+            set
+            {
+                fieldSortOrder = value;
+                OnPropertyChanged("FieldSortOrder");
             }
         }
 
