@@ -28,3 +28,25 @@ Building
 ---------
 
 To build from cmdline run **build.ps1** in PowerShell. Script builds Release configuration by default into the same directory. Script accepts *Configuration*, *OutputPath*, *Portable* (creates zip package) and *SkipBuild* parameters.
+
+Contributions
+---------
+
+All contributions are welcome!
+
+Regarding code styling, there are only a few major rules:
+* private fields and properties should use camelCase (without underscore)
+* all methods (private and public) should use PascalCase
+* use spaces instead of tabs with 4 spaces width
+* always encapsulate with brackets:
+```
+if (true)
+{
+    DoSomething()
+}
+```
+instead of 
+```
+if (true)
+    DoSomething()
+```
