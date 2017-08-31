@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -32,6 +33,9 @@ namespace LiteDbExplorer
     /// </summary>
     public partial class MainWindow : Window
     {
+        private PipeService pipeService;
+        private PipeServer pipeServer;
+
         private WindowPositionHandler positionManager;
         private static NLog.Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -299,7 +303,7 @@ namespace LiteDbExplorer
 
                 ListCollectionData.SelectedItem = SelectedCollection.AddItem(newDoc);
                 ListCollectionData.ScrollIntoView(ListCollectionData.SelectedItem);
-                UpdateGridColumns(newDoc);                
+                UpdateGridColumns(newDoc);
             }
         }
         #endregion Add Command
@@ -625,7 +629,7 @@ namespace LiteDbExplorer
         #region Paste Command
         private void PasteCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = SelectedCollection != null && SelectedCollection.Name != "_files" && Clipboard.ContainsText();            
+            e.CanExecute = SelectedCollection != null && SelectedCollection.Name != "_files" && Clipboard.ContainsText();
         }
 
         private void PasteCommand_Executed(object sender, ExecutedRoutedEventArgs e)
@@ -791,7 +795,7 @@ namespace LiteDbExplorer
                 var valueEdit = BsonValueEditor.GetBsonValueEditor(string.Format("[{0}]", key), document.LiteDocument[key], document.LiteDocument, true);
                 controls.Add(new DocumentFieldData(key, valueEdit));
             }
-            
+
             ItemsDocPreview.ItemsSource = controls;
 
             if (document.Collection is FileCollectionReference)
@@ -838,7 +842,7 @@ namespace LiteDbExplorer
             if (Databases.FirstOrDefault(a => a.Location == path) != null)
             {
                 return;
-            }                
+            }
 
             if (!File.Exists(path))
             {
@@ -939,6 +943,49 @@ namespace LiteDbExplorer
         {
             positionManager.RestoreSizeAndLocation(App.Settings);
             App.Settings.PropertyChanged += Settings_PropertyChanged;
+
+            if ((Application.Current as App).OriginalInstance)
+            {
+                pipeService = new PipeService();
+                pipeService.CommandExecuted += PipeService_CommandExecuted; ;
+                pipeServer = new PipeServer(ConfigurationManager.AppSettings["PipeEndpoint"]);
+                pipeServer.StartServer(pipeService);
+
+                var args = Environment.GetCommandLineArgs();
+                if (args.Count() > 1)
+                {
+                    PipeService_CommandExecuted(this, new CommandExecutedEventArgs(CmdlineCommands.Open, args[1]));
+                }
+            }
+        }
+
+        private void RestoreWindow()
+        {
+            Show();
+            WindowState = WindowState.Normal;
+            Activate();
+            Focus();
+        }
+
+        private void PipeService_CommandExecuted(object sender, CommandExecutedEventArgs args)
+        {
+            logger.Info(@"Executing command ""{0}"" from pipe with arguments ""{1}""", args.Command, args.Args);
+
+            switch (args.Command)
+            {
+                case CmdlineCommands.Focus:
+                    RestoreWindow();
+                    break;
+
+                case CmdlineCommands.Open:
+                    OpenDatabase(args.Args);
+                    RestoreWindow();
+                    break;
+
+                default:
+                    logger.Warn("Unknown command received");
+                    break;
+            }
         }
 
         private void WindowMain_LocationChanged(object sender, EventArgs e)

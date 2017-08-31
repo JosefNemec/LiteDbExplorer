@@ -59,6 +59,7 @@
     <Reference Include="System.configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -95,6 +96,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="CmdlineCommands.cs" />
     <Compile Include="CollectionReference.cs" />
     <Compile Include="Commands.cs" />
     <Compile Include="Config.cs" />
@@ -110,6 +112,7 @@
     <Compile Include="DocumentReference.cs" />
     <Compile Include="FileCollectionReference.cs" />
     <Compile Include="Paths.cs" />
+    <Compile Include="PipeServer.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Update.cs" />
     <Compile Include="Versions.cs" />

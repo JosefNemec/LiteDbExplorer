@@ -6,6 +6,7 @@ using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -17,6 +18,14 @@ namespace LiteDbExplorer
     public partial class App : Application
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
+        private string instanceMuxet = "LiteDBExplorerInstaceMutex";
+        private Mutex appMutex;
+
+        public bool OriginalInstance
+        {
+            get;
+            private set;
+        } = false;
 
         public static Settings Settings
         {
@@ -30,11 +39,34 @@ namespace LiteDbExplorer
 #endif
             Settings = Settings.LoadSettings();
             Config.ConfigureLogger();
+
+            // For now we want to allow multiple instances if app is started without args
+            if (Mutex.TryOpenExisting(instanceMuxet, out var mutex))
+            {
+                var client = new PipeClient(ConfigurationManager.AppSettings["PipeEndpoint"]);
+
+                if (e.Args.Count() > 0)
+                {
+                    client.InvokeCommand(CmdlineCommands.Open, e.Args[0]);                    
+                    Shutdown();
+                    return;
+                }
+            }
+            else
+            {
+                appMutex = new Mutex(true, instanceMuxet);
+                OriginalInstance = true;
+            }
         }
 
         private void Application_Exit(object sender, ExitEventArgs e)
         {
             Settings.SaveSettings();
+
+            if (appMutex != null)
+            {
+                appMutex.ReleaseMutex();
+            }
         }
 
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
