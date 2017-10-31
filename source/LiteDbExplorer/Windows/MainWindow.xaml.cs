@@ -1011,5 +1011,28 @@ namespace LiteDbExplorer
                 UpdateGridColumns();
             }
         }
+
+        private void LeftPanel_Drop(object sender, DragEventArgs e)
+        {
+            try
+            {
+                if (e.Data.GetDataPresent(DataFormats.FileDrop))
+                {
+                    string[] files = e.Data.GetData(DataFormats.FileDrop, false) as string[];
+                    if (files!=null)
+                    {
+                        foreach (var f in files)
+                        {
+                            OpenDatabase(f);
+                        }
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+                logger.Error(exc, "Failed to open database: ");
+                MessageBox.Show("Failed to open database: " + exc.Message, "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 }
