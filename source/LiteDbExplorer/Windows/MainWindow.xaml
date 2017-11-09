@@ -203,7 +203,8 @@
 
             <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
 
-            <DockPanel Grid.Column="0">
+            <DockPanel Grid.Column="0" AllowDrop="True" 
+                       Background="Transparent" Drop="LeftPanel_Drop">
                 <Border Name="DockSearch" DockPanel.Dock="Top" BorderThickness="1,1,1,0" BorderBrush="{Binding BorderBrush, ElementName=TreeDatabasese}">
                     <StackPanel>
                         <DockPanel Margin="5,5,5,0">
