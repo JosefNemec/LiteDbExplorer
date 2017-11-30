@@ -10,7 +10,7 @@
         mc:Ignorable="d"
         Title="Document Editor" Width="600" Height="600" 
         WindowStartupLocation="CenterOwner"
-        Activated="Window_Activated" Closed="Window_Closed">
+        Activated="Window_Activated">
 
     <Window.Resources>
         <converters:InvertableBooleanToVisibilityConverter x:Key="InvertableBooleanToVisibilityConverter" />

@@ -69,7 +69,6 @@ namespace LiteDbExplorer.Windows
 
         private BsonDocument currentDocument;
         private DocumentReference documentReference;
-        private LiteTransaction dbTrans;
 
         private bool isReadOnly = false;
         public bool IsReadOnly
@@ -116,12 +115,6 @@ namespace LiteDbExplorer.Windows
 
         private void LoadDocument(DocumentReference document)
         {
-            if (dbTrans != null)
-            {
-                dbTrans.Rollback();
-                dbTrans.Dispose();
-            }
-
             if (document.Collection is FileCollectionReference)
             {
                 var fileInfo = (document.Collection as FileCollectionReference).GetFileObject(document);
@@ -131,7 +124,6 @@ namespace LiteDbExplorer.Windows
 
             currentDocument = document.Collection.LiteCollection.FindById(document.LiteDocument["_id"]);
             documentReference = document;
-            dbTrans = documentReference.Collection.Database.LiteDatabase.BeginTrans();
             customControls = new ObservableCollection<DocumentFieldData>();
 
             for (int i = 0; i < document.LiteDocument.Keys.Count; i++)
@@ -159,11 +151,6 @@ namespace LiteDbExplorer.Windows
 
         private void ButtonCancel_Click(object sender, RoutedEventArgs e)
         {
-            if (dbTrans != null)
-            {
-                dbTrans.Rollback();
-            }
-
             DialogResult = false;
             Close();            
         }
@@ -193,7 +180,6 @@ namespace LiteDbExplorer.Windows
             {
                 documentReference.LiteDocument = currentDocument;
                 documentReference.Collection.UpdateItem(documentReference);
-                dbTrans.Commit();
             }
 
             DialogResult = true;
@@ -269,14 +255,6 @@ namespace LiteDbExplorer.Windows
         private void Window_Activated(object sender, EventArgs e)
         {
             ItemsField_SizeChanged(ListItems, null);
-        }
-
-        private void Window_Closed(object sender, EventArgs e)
-        {
-            if (dbTrans != null)
-            {
-                dbTrans.Dispose();
-            }
         }
 
         private void NextItemCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
