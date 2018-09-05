@@ -11,6 +11,17 @@ namespace LiteDbExplorer
 {
     public class Paths : INotifyPropertyChanged
     {
+        public static string AppDataPath
+        {
+            get
+            {
+                var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LiteDbExplorer");
+                if (!Directory.Exists(path))
+                    Directory.CreateDirectory(path);
+                return path;
+            }
+        }
+
         public static string ProgramFolder
         {
             get
@@ -31,7 +42,7 @@ namespace LiteDbExplorer
         {
             get
             {
-                return Path.Combine(ProgramFolder, "recentfiles.txt");
+                return Path.Combine(AppDataPath, "recentfiles.txt");
             }
         }
 
@@ -39,7 +50,7 @@ namespace LiteDbExplorer
         {
             get
             {
-                return Path.Combine(ProgramFolder, "settings.json");
+                return Path.Combine(AppDataPath, "settings.json");
             }
         }
 

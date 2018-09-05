@@ -69,10 +69,10 @@ namespace LiteDbExplorer
 #endif
             var fileTarget = new FileTarget()
             {
-                FileName = Path.Combine(Paths.ProgramFolder, "explorer.log"),
+                FileName = Path.Combine(Paths.AppDataPath, "explorer.log"),
                 Layout = "${longdate}|${level:uppercase=true}:${message}${exception:format=toString}",
                 KeepFileOpen = false,
-                ArchiveFileName = Path.Combine(Paths.ProgramFolder, "explorer.{#####}.log"),
+                ArchiveFileName = Path.Combine(Paths.AppDataPath, "explorer.{#####}.log"),
                 ArchiveAboveSize = 4096000,
                 ArchiveNumbering = ArchiveNumberingMode.Sequence,
                 MaxArchiveFiles = 2
