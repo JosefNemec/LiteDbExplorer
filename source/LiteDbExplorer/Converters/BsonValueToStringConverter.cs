@@ -33,6 +33,19 @@ namespace LiteDbExplorer.Converters
                 {
                     return "[Binary]";
                 }
+                else if (bsonValue.IsDateTime)
+                {
+                    return bsonValue.AsDateTime.ToString();
+                }
+                else if (bsonValue.IsString)
+                {
+                    var val = bsonValue.ToString();
+                    if (val.Length > Config.MaxColumnLength)
+                    {
+                        return val.Substring(0, Config.MaxColumnLength) + " [...]\"";
+                    }
+                    return val;
+                }
                 else
                 {
                     return bsonValue.ToString();

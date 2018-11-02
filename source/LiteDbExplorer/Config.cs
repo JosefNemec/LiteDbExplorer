@@ -13,6 +13,8 @@ namespace LiteDbExplorer
 {
     public class Config
     {
+        public static int MaxColumnLength { get; set; } = 200;
+
         public static string UpdateDataUrl
         {
             get

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -21,7 +22,7 @@ namespace LiteDbExplorer
             set
             {
                 document = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("LiteDocument"));
+                OnPropertyChanged();
             }
         }
 
@@ -36,7 +37,7 @@ namespace LiteDbExplorer
             set
             {
                 collection = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Collection"));
+                OnPropertyChanged();
             }
         }
 
@@ -51,5 +52,10 @@ namespace LiteDbExplorer
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
     }
 }

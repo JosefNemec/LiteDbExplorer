@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -54,7 +55,7 @@ namespace LiteDbExplorer
             set
             {
                 windowPositions = value;
-                OnPropertyChanged("WindowPositions");
+                OnPropertyChanged();
             }
         }
 
@@ -69,7 +70,7 @@ namespace LiteDbExplorer
             set
             {
                 fieldSortOrder = value;
-                OnPropertyChanged("FieldSortOrder");
+                OnPropertyChanged();
             }
         }
 
@@ -84,13 +85,13 @@ namespace LiteDbExplorer
             set
             {
                 mainSplitterSize = value;
-                OnPropertyChanged("MainSplitterSize");
+                OnPropertyChanged();
             }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public void OnPropertyChanged(string name)
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }

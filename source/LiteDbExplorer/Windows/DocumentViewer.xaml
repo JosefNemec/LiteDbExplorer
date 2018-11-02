@@ -70,11 +70,12 @@
             <Button Name="ButtonNext" FontFamily="Marlett" Content="4" Grid.Column="2" Grid.Row="0" Margin="5" Height="100"
                     Command="local:DocumentViewer.NextItem"/>
             <DockPanel Grid.Column="1" Grid.Row="0">
-                <ListView Name="ListItems" SizeChanged="ItemsField_SizeChanged" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                <ListView Name="ListItems" SizeChanged="ItemsField_SizeChanged" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.CanContentScroll="False"
                         BorderThickness="0" DockPanel.Dock="Top">
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
                             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            <Setter Property="VerticalContentAlignment" Value="Stretch" />
                         </Style>
                     </ListView.ItemContainerStyle>
                     <ListView.View>
@@ -87,7 +88,9 @@
                             <GridViewColumn>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Name}" TextAlignment="Right"/>
+                                        <StackPanel Margin="0,3,0,3">
+                                            <TextBlock Text="{Binding Name}" TextAlignment="Right" />
+                                        </StackPanel>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
@@ -101,10 +104,12 @@
                             <GridViewColumn Width="40">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button DockPanel.Dock="Right" Tag="{Binding Name}" Click="RemoveButton_Click" ToolTip="Remove Item"
+                                        <StackPanel Margin="0,3,0,3">
+                                            <Button Tag="{Binding Name}" Click="RemoveButton_Click" ToolTip="Remove Item"
                                                 Visibility="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InvertableBooleanToVisibilityConverter}, ConverterParameter=Inverted}">
-                                            <Image Source="/Images/deleteitem.png" Width="16" Height="16"/>
-                                        </Button>
+                                                <Image Source="/Images/deleteitem.png" Width="16" Height="16"/>
+                                            </Button>
+                                        </StackPanel>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
