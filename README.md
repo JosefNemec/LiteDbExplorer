@@ -1,4 +1,4 @@
-# This repository [is no longer](https://github.com/JosefNemec/LiteDbExplorer/issues/34#issuecomment-432939390) maintained, check out [julianpaulozzi's fork](https://github.com/julianpaulozzi/LiteDbExplorer) for more updates.
+# Only supports LiteDB version 4 files!
 
 # <img src="https://github.com/JosefNemec/LiteDbExplorer/blob/master/source/LiteDbExplorer/Images/icon.png" width="32">  LiteDb Explorer
 Graphical editor for [LiteDB](https://github.com/mbdavid/LiteDB) databases. Writter in .NET and WPF.
