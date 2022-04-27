@@ -1,3 +1,4 @@
+# Only supports LiteDB version 4 files!
 
 # <img src="https://github.com/JosefNemec/LiteDbExplorer/blob/master/source/LiteDbExplorer/Images/icon.png" width="32">  LiteDb Explorer
 Graphical editor for [LiteDB](https://github.com/mbdavid/LiteDB) databases. Writter in .NET and WPF.

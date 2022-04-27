@@ -76,6 +76,8 @@
                         <Style TargetType="ListViewItem">
                             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                             <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                            <Setter Property="Focusable" Value="False" />
+                            <Setter Property="Background" Value="Transparent" />
                         </Style>
                     </ListView.ItemContainerStyle>
                     <ListView.View>
@@ -88,9 +90,7 @@
                             <GridViewColumn>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <StackPanel Margin="0,3,0,3">
-                                            <TextBlock Text="{Binding Name}" TextAlignment="Right" />
-                                        </StackPanel>
+                                        <TextBlock Margin="0,3,0,3" Text="{Binding Name}" TextAlignment="Right" />
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
@@ -104,12 +104,10 @@
                             <GridViewColumn Width="40">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <StackPanel Margin="0,3,0,3">
-                                            <Button Tag="{Binding Name}" Click="RemoveButton_Click" ToolTip="Remove Item"
-                                                Visibility="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InvertableBooleanToVisibilityConverter}, ConverterParameter=Inverted}">
-                                                <Image Source="/Images/deleteitem.png" Width="16" Height="16"/>
-                                            </Button>
-                                        </StackPanel>
+                                        <Button Margin="0,3,0,3" Tag="{Binding Name}" Click="RemoveButton_Click" ToolTip="Remove Item"
+                                            Visibility="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InvertableBooleanToVisibilityConverter}, ConverterParameter=Inverted}">
+                                            <Image Source="/Images/deleteitem.png" Width="16" Height="16"/>
+                                        </Button>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>

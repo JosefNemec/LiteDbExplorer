@@ -18,6 +18,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Automation.Peers;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -28,11 +29,37 @@ using System.Windows.Navigation;
 
 namespace LiteDbExplorer
 {
+    public class EmptyWindowAutomationPeer : FrameworkElementAutomationPeer
+    {
+        private static readonly List<AutomationPeer> emptyList = new List<AutomationPeer>();
+
+        public EmptyWindowAutomationPeer(FrameworkElement owner) : base(owner)
+        {
+        }
+
+        protected override string GetNameCore()
+        {
+            return nameof(EmptyWindowAutomationPeer);
+        }
+
+        protected override AutomationControlType GetAutomationControlTypeCore()
+        {
+            return AutomationControlType.Window;
+        }
+
+        protected override List<AutomationPeer> GetChildrenCore()
+        {
+            return emptyList;
+        }
+    }
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
+        private readonly EmptyWindowAutomationPeer automationPeer;
+
         private PipeService pipeService;
         private PipeServer pipeServer;
 
@@ -130,8 +157,11 @@ namespace LiteDbExplorer
         public MainWindow()
         {
             InitializeComponent();
+            automationPeer = new EmptyWindowAutomationPeer(this);
             positionManager = new WindowPositionHandler(this, "Main");
+            DockSearch.Visibility = Visibility.Collapsed;
 
+#if !DEBUG
             Task.Factory.StartNew(() =>
             {
                 Thread.Sleep(2000);
@@ -154,8 +184,12 @@ namespace LiteDbExplorer
                     logger.Error(exc, "Failed to process update.");
                 }
             });
+#endif
+        }
 
-            DockSearch.Visibility = Visibility.Collapsed;
+        protected override AutomationPeer OnCreateAutomationPeer()
+        {
+            return automationPeer;
         }
 
         #region Exit Command
@@ -784,7 +818,6 @@ namespace LiteDbExplorer
                 return;
             }
 
-
             BorderDocPreview.Visibility = Visibility.Visible;
             var document = DbSelectedItems.First();
             var controls = new List<DocumentFieldData>();
@@ -877,7 +910,7 @@ namespace LiteDbExplorer
             catch (Exception e)
             {
                 MessageBox.Show("Failed to open database:" + Environment.NewLine + e.Message, "Database Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                logger.Error(e, "Failed to process update: ");
+                logger.Error(e, "Failed to open database: ");
                 return;
             }
         }
