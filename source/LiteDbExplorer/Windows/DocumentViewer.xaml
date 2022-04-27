@@ -70,11 +70,12 @@
             <Button Name="ButtonNext" FontFamily="Marlett" Content="4" Grid.Column="2" Grid.Row="0" Margin="5" Height="100"
                     Command="local:DocumentViewer.NextItem"/>
             <DockPanel Grid.Column="1" Grid.Row="0">
-                <ListView Name="ListItems" SizeChanged="ItemsField_SizeChanged" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                <ListView Name="ListItems" SizeChanged="ItemsField_SizeChanged" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.CanContentScroll="False"
                         BorderThickness="0" DockPanel.Dock="Top">
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
                             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            <Setter Property="VerticalContentAlignment" Value="Stretch" />
                             <Setter Property="Focusable" Value="False" />
                             <Setter Property="Background" Value="Transparent" />
                         </Style>
@@ -89,7 +90,7 @@
                             <GridViewColumn>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Name}" TextAlignment="Right"/>
+                                        <TextBlock Margin="0,3,0,3" Text="{Binding Name}" TextAlignment="Right" />
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
@@ -103,8 +104,8 @@
                             <GridViewColumn Width="40">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button DockPanel.Dock="Right" Tag="{Binding Name}" Click="RemoveButton_Click" ToolTip="Remove Item"
-                                                Visibility="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InvertableBooleanToVisibilityConverter}, ConverterParameter=Inverted}">
+                                        <Button Margin="0,3,0,3" Tag="{Binding Name}" Click="RemoveButton_Click" ToolTip="Remove Item"
+                                            Visibility="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InvertableBooleanToVisibilityConverter}, ConverterParameter=Inverted}">
                                             <Image Source="/Images/deleteitem.png" Width="16" Height="16"/>
                                         </Button>
                                     </DataTemplate>

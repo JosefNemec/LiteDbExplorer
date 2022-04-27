@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -22,7 +23,7 @@ namespace LiteDbExplorer
             set
             {
                 database = value;
-                OnPropertyChanged("Database");
+                OnPropertyChanged();
             }
         }
 
@@ -37,7 +38,7 @@ namespace LiteDbExplorer
             set
             {
                 name = value;
-                OnPropertyChanged("Name");
+                OnPropertyChanged();
             }
         }
 
@@ -61,7 +62,7 @@ namespace LiteDbExplorer
             set
             {
                 items = value;
-                OnPropertyChanged("Items");
+                OnPropertyChanged();
             }
         }
 
@@ -75,7 +76,7 @@ namespace LiteDbExplorer
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public void OnPropertyChanged(string name)
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
