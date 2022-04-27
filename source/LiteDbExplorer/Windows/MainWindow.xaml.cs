@@ -132,6 +132,7 @@ namespace LiteDbExplorer
             InitializeComponent();
             positionManager = new WindowPositionHandler(this, "Main");
 
+#if !DEBUG
             Task.Factory.StartNew(() =>
             {
                 Thread.Sleep(2000);
@@ -154,6 +155,8 @@ namespace LiteDbExplorer
                     logger.Error(exc, "Failed to process update.");
                 }
             });
+#endif
+        }
 
             DockSearch.Visibility = Visibility.Collapsed;
         }
