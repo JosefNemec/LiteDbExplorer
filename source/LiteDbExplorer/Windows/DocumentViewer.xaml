@@ -90,21 +90,21 @@
                             <GridViewColumn>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Margin="0,3,0,3" Text="{Binding Name}" TextAlignment="Right" />
+                                        <TextBlock Margin="0,3,0,3" Text="{Binding Name}" TextAlignment="Right" VerticalAlignment="Center" />
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
                             <GridViewColumn>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <ContentPresenter Content="{Binding EditControl}" Margin="0,3,0,3"/>
+                                        <ContentPresenter Content="{Binding EditControl}" Margin="0,3,0,3" VerticalAlignment="Center"/>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
                             <GridViewColumn Width="40">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Margin="0,3,0,3" Tag="{Binding Name}" Click="RemoveButton_Click" ToolTip="Remove Item"
+                                        <Button Margin="0,3,0,3" Tag="{Binding Name}" Click="RemoveButton_Click" ToolTip="Remove Item" VerticalAlignment="Center"
                                             Visibility="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource InvertableBooleanToVisibilityConverter}, ConverterParameter=Inverted}">
                                             <Image Source="/Images/deleteitem.png" Width="16" Height="16"/>
                                         </Button>
